@@ -37,6 +37,11 @@ fn main() {
                 .trim_start_matches(pf)
                 .to_ascii_uppercase()
                 .replace(|c| !char::is_alphanumeric(c), "_");
+            let ident = if ident.starts_with(char::is_numeric) {
+                format!("_{}", ident)
+            } else {
+                ident
+            };
             writeln!(out, "/// `{}`", name).unwrap();
             writeln!(
                 out,
