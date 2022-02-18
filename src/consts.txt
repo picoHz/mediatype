@@ -586,7 +586,7 @@ sql
 srgs
 sru
 ssml
-star=*
+_star=*
 step
 step-xml
 stix
