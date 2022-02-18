@@ -7,6 +7,7 @@ use std::{
 
 const PREFIXES: &[(&str, &str)] = &[
     ("x-", "consts_generated.x_.rs"),
+    ("vnd.", "consts_generated.vnd.rs"),
     ("", "consts_generated.rs"),
 ];
 

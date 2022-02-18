@@ -45,6 +45,7 @@ star=*
 svg
 text
 utf-8
+vnd.api
 wasm
 wbxml
 webp
@@ -55,3 +56,9 @@ x-www-form-urlencoded
 xml
 zip
 zstd
+vnd.ms-excel
+vnd.ms-powerpoint
+vnd.oasis.opendocument.text
+vnd.openxmlformats-officedocument.presentationml.presentation
+vnd.openxmlformats-officedocument.spreadsheetml.sheet
+vnd.openxmlformats-officedocument.wordprocessingml.document
