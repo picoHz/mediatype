@@ -35,8 +35,9 @@ fn main() {
         if let Some((&pf, out)) = prefixes.iter_mut().find(|(&pf, _)| ident.starts_with(pf)) {
             let ident = ident
                 .trim_start_matches(pf)
-                .to_ascii_uppercase()
-                .replace(|c| !char::is_alphanumeric(c), "_");
+                .replace('+', "_plus")
+                .replace(|c| !char::is_alphanumeric(c), "_")
+                .to_ascii_uppercase();
             let ident = if ident.starts_with(char::is_numeric) {
                 format!("_{}", ident)
             } else {
