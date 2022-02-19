@@ -52,6 +52,17 @@ impl MediaTypeBuf {
         Params::from_indices(&self.data, &self.indices)
     }
 
+    /// Returns the string representation without parameters.
+    /// ```
+    /// # use mediatype::MediaTypeBuf;
+    /// # use std::str::FromStr;
+    /// let media_type: MediaTypeBuf = "image/svg+xml; charset=UTF-8".parse().unwrap();
+    /// assert_eq!(media_type.essence(), "image/svg+xml");
+    /// ```
+    pub fn essence(&self) -> &str {
+        self.data.split(";").next().unwrap()
+    }
+
     /// Gets a parameter value by its key.
     ///
     /// The key is case-insensitive.
@@ -225,6 +236,25 @@ mod tests {
         );
     }
 
+    #[test]
+    fn essence() {
+        assert_eq!(
+            MediaTypeBuf::from_str("image/svg+xml").unwrap().essence(),
+            "image/svg+xml"
+        );
+        assert_eq!(
+            MediaTypeBuf::from_str("image/svg+xml;  ")
+                .unwrap()
+                .essence(),
+            "image/svg+xml"
+        );
+        assert_eq!(
+            MediaTypeBuf::from_str("image/svg+xml; charset=UTF-8")
+                .unwrap()
+                .essence(),
+            "image/svg+xml"
+        );
+    }
     #[test]
     fn cmp() {
         assert_eq!(
