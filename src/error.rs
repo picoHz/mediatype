@@ -1,6 +1,7 @@
 use std::{error, fmt};
 
 /// Parsing error.
+#[non_exhaustive]
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
 pub enum ParseError {
     TooLongInput,
