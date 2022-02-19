@@ -132,10 +132,10 @@ fn parse_to_string(s: &str) -> Result<String, ParseError> {
 fn is_restricted_name(s: &str) -> bool {
     s.len() <= TYPE_NAME_LENGTH_HARD_LIMIT
         && s.starts_with(char::is_alphanumeric)
-        && is_restricted_seq(s)
+        && is_restricted_str(s)
 }
 
-fn is_restricted_seq(s: &str) -> bool {
+pub fn is_restricted_str(s: &str) -> bool {
     s.chars().all(is_restricted_char)
 }
 
@@ -189,7 +189,7 @@ fn parse_param(s: &str) -> Result<(Range<usize>, Range<usize>), ParseError> {
         } else {
             value_end - value_trimmed..value_end
         };
-        if !is_restricted_seq(&s[value_range.clone()]) {
+        if !is_restricted_str(&s[value_range.clone()]) {
             return Err(ParseError::InvalidParamValue);
         }
 

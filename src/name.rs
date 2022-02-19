@@ -1,3 +1,4 @@
+use super::parse::*;
 use std::{
     cmp::Ordering,
     fmt,
@@ -7,6 +8,16 @@ use std::{
 /// A MediaType name.
 #[derive(Debug, Copy, Clone)]
 pub struct Name<'a>(pub(crate) &'a str);
+
+impl<'a> Name<'a> {
+    pub fn new(s: &'a str) -> Option<Self> {
+        if is_restricted_str(s) {
+            Some(Self(s))
+        } else {
+            None
+        }
+    }
+}
 
 impl<'a> fmt::Display for Name<'a> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
