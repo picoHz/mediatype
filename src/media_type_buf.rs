@@ -137,18 +137,6 @@ impl FromStr for MediaTypeBuf {
     }
 }
 
-impl From<MediaType<'_>> for MediaTypeBuf {
-    fn from(m: MediaType<'_>) -> Self {
-        m.to_string().parse().unwrap()
-    }
-}
-
-impl From<&MediaType<'_>> for MediaTypeBuf {
-    fn from(m: &MediaType<'_>) -> Self {
-        m.to_string().parse().unwrap()
-    }
-}
-
 impl AsRef<str> for MediaTypeBuf {
     fn as_ref(&self) -> &str {
         &self.data
