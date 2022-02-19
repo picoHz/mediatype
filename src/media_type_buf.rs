@@ -76,6 +76,38 @@ impl MediaTypeBuf {
             .map(|index| &self.data[params[index][2] as usize..params[index][3] as usize])
     }
 
+    /// Returns the canonicalized `MediaType`.
+    ///
+    /// All strings except parameter values will be converted to lowercase.
+    ///
+    /// ```
+    /// # use mediatype::MediaTypeBuf;
+    /// let media_type: MediaTypeBuf = "IMAGE/SVG+XML;  CHARSET=UTF-8;  ".parse().unwrap();
+    /// assert_eq!(
+    ///     media_type.canonicalize().to_string(),
+    ///     "image/svg+xml; charset=UTF-8"
+    /// );
+    /// ```
+    pub fn canonicalize(&self) -> Self {
+        use std::fmt::Write;
+        let mut s = String::with_capacity(self.data.len());
+        write!(
+            s,
+            "{}/{}",
+            self.ty().to_ascii_lowercase(),
+            self.subty().to_ascii_lowercase()
+        )
+        .unwrap();
+        if let Some(suffix) = self.suffix() {
+            write!(s, "+{}", suffix.to_ascii_lowercase()).unwrap();
+        }
+        for (key, value) in self.params() {
+            write!(s, "; {}={}", key.to_ascii_lowercase(), value).unwrap();
+        }
+        s.shrink_to_fit();
+        Self::from_string(s).unwrap()
+    }
+
     pub(crate) fn ty_name(&self) -> Name {
         Name(self.ty())
     }
@@ -255,6 +287,18 @@ mod tests {
             "image/svg+xml"
         );
     }
+
+    #[test]
+    fn canonicalize() {
+        assert_eq!(
+            MediaTypeBuf::from_str("IMAGE/SVG+XML;         CHARSET=UTF-8;     ")
+                .unwrap()
+                .canonicalize()
+                .to_string(),
+            "image/svg+xml; charset=UTF-8"
+        );
+    }
+
     #[test]
     fn cmp() {
         assert_eq!(
