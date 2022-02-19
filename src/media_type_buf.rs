@@ -6,7 +6,7 @@ use std::{
     str::FromStr,
 };
 
-/// An owned MediaType.
+/// An owned and immutable MediaType.
 #[derive(Debug, Clone)]
 pub struct MediaTypeBuf {
     data: Box<str>,

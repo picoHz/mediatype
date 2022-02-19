@@ -2,7 +2,7 @@
 //!
 //! - [`MediaType`] does not copy data during parsing
 //!     and just holds reference to the original string. It is also const-constructible.
-//! - [`MediaTypeBuf`] is an owned version of [`MediaType`].
+//! - [`MediaTypeBuf`] is an owned  and immutable version of [`MediaType`].
 //!
 //! [`MadiaType`]: ./struct.MediaType.html
 //! [`MediaTypeBuf`]: ./struct.MediaTypeBuf.html
