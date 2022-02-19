@@ -5,17 +5,9 @@ use std::{
     path::Path,
 };
 
-const PREFIXES: &[(&str, &str)] = &[
-    ("x-", "names_generated.x_.rs"),
-    ("vnd.", "names_generated.vnd.rs"),
-    ("", "names_generated.rs"),
-];
-
-const INPUT: &str = "src/consts/names.txt";
-
-fn main() {
+fn generate_consts(ty: &str, input: &str, prefixes: &[(&str, &str)]) {
     let out_dir = env::var_os("OUT_DIR").unwrap();
-    let mut prefixes = PREFIXES
+    let mut prefixes = prefixes
         .iter()
         .map(|(pf, file)| {
             let dest_path = Path::new(&out_dir).join(file);
@@ -24,7 +16,7 @@ fn main() {
         })
         .collect::<Vec<_>>();
 
-    let file = File::open(INPUT).unwrap();
+    let file = File::open(input).unwrap();
     for line in BufReader::new(file).lines().flatten() {
         let (ident, name) = if let Some(pair) = line.split_once('=') {
             pair
@@ -57,12 +49,29 @@ fn main() {
             writeln!(out, "/// `{}`", name).unwrap();
             writeln!(
                 out,
-                "pub const {}: crate::Name = crate::Name(\"{}\");",
-                ident, name
+                "pub const {}: crate::{} = crate::{}(\"{}\");",
+                ident, ty, ty, name
             )
             .unwrap();
         }
     }
 
-    println!("cargo:rerun-if-changed={}", INPUT);
+    println!("cargo:rerun-if-changed={}", input);
+}
+
+fn main() {
+    generate_consts(
+        "Name",
+        "src/consts/names.txt",
+        &[
+            ("x-", "names_generated.x_.rs"),
+            ("vnd.", "names_generated.vnd.rs"),
+            ("", "names_generated.rs"),
+        ],
+    );
+    generate_consts(
+        "Value",
+        "src/consts/values.txt",
+        &[("", "values_generated.rs")],
+    );
 }
