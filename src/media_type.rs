@@ -113,6 +113,30 @@ impl<'a> MediaType<'a> {
             .map(|index| self.params[index].1.as_ref())
     }
 
+    /// Sets a parameter value.
+    ///
+    /// The key is case-insensitive.
+    pub fn set_param<'k: 'a, 'v: 'a>(
+        &mut self,
+        key: &'k Name,
+        value: &'v Name,
+    ) -> Result<(), ParseError> {
+        if !is_restricted_name(key.as_ref()) {
+            return Err(ParseError::InvalidParamKey);
+        }
+        if let Ok(index) = self
+            .params
+            .binary_search_by_key(&Name(key.as_ref()), |(key, _)| *key)
+        {
+            self.params.to_mut()[index].1 = *value;
+        } else {
+            let params = self.params.to_mut();
+            params.push((*key, *value));
+            params.sort_unstable_by_key(|&(key, _)| key);
+        }
+        Ok(())
+    }
+
     /// Removes and returns a parameter value by its key.
     ///
     /// The key is case-insensitive.
@@ -233,6 +257,22 @@ mod tests {
                 .unwrap()
                 .get_param(&Name::new("hello").unwrap()),
             Some("WORLD")
+        );
+    }
+
+    #[test]
+    fn set_param() {
+        let mut media_type = MediaType::from_parts(TEXT, PLAIN, None, Some(&[(CHARSET, UTF_8)]));
+        let upper_utf8 = Name::new("UTF-8").unwrap();
+        assert_eq!(media_type.set_param(&CHARSET, &upper_utf8), Ok(()));
+        assert_eq!(media_type.to_string(), "text/plain; charset=UTF-8");
+
+        let alice = Name::new("ALICE").unwrap();
+        let bob = Name::new("bob").unwrap();
+        assert_eq!(media_type.set_param(&alice, &bob), Ok(()));
+        assert_eq!(
+            media_type.to_string(),
+            "text/plain; ALICE=bob; charset=UTF-8"
         );
     }
 

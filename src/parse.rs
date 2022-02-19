@@ -129,7 +129,7 @@ fn parse_to_string(s: &str) -> Result<String, ParseError> {
     Ok(out)
 }
 
-fn is_restricted_name(s: &str) -> bool {
+pub fn is_restricted_name(s: &str) -> bool {
     s.len() <= TYPE_NAME_LENGTH_HARD_LIMIT
         && s.starts_with(char::is_alphanumeric)
         && is_restricted_str(s)
