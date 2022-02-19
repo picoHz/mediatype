@@ -5,11 +5,20 @@ use std::{
     hash::{Hash, Hasher},
 };
 
-/// A MediaType name.
+/// A media-type name.
+///
+/// A valid name has the following requirements:
+///
+/// - The first character must be an alphabet or a number.
+/// - The subsequent characters must be alphabets, numbers or `!#$&-^_.+%*'`.
+/// - Length of the name can not exceed 127 bytes.
 #[derive(Debug, Copy, Clone)]
 pub struct Name<'a>(pub(crate) &'a str);
 
 impl<'a> Name<'a> {
+    /// Constructs a `Name`.
+    ///
+    /// If the string is not valid as a name, returns `None`.
     pub fn new(s: &'a str) -> Option<Self> {
         if is_restricted_name(s) {
             Some(Self(s))

@@ -1,11 +1,19 @@
 use super::parse::*;
 use std::{cmp::Ordering, fmt};
 
-/// A MediaType parameter value.
+/// A media-type parameter value.
+///
+/// A valid value has the following requirements:
+///
+/// - Allowed characters are alphabets, numbers and `!#$&-^_.+%*'`.
+/// - The value can not be empty.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Value<'a>(pub(crate) &'a str);
 
 impl<'a> Value<'a> {
+    /// Constructs a `Value`.
+    ///
+    /// If the string is not valid as a value, returns `None`.
     pub fn new(s: &'a str) -> Option<Self> {
         if is_restricted_str(s) {
             Some(Self(s))
