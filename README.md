@@ -2,7 +2,7 @@
 
 # MediaType
 
-MediaType for Rust
+MIME Media-type parsing for Rust
 
 [![Crates.io](https://img.shields.io/crates/v/mediatype.svg)](https://crates.io/crates/mediatype)
 [![GitHub license](https://img.shields.io/github/license/picoHz/mediatype.svg)](https://github.com/picoHz/mediatype/blob/main/LICENSE)

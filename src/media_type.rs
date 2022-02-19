@@ -113,12 +113,12 @@ impl<'a> MediaType<'a> {
 
     /// Returns an iterator over the parameters.
     ///
-    /// The parameters are alphabetically sorted by their key.
+    /// The parameters are alphabetically sorted by their keys.
     pub fn params(&self) -> Params {
         Params::from_slice(&self.params)
     }
 
-    /// Gets a parameter value by its key.
+    /// Gets the parameter value by its key.
     ///
     /// The key is case-insensitive.
     pub fn get_param(&self, key: &Name) -> Option<&str> {

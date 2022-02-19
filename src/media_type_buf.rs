@@ -58,12 +58,12 @@ impl MediaTypeBuf {
 
     /// Returns an iterator over the parameters.
     ///
-    /// The parameters are alphabetically sorted by their key.
+    /// The parameters are alphabetically sorted by their keys.
     pub fn params(&self) -> Params {
         Params::from_indices(&self.data, &self.indices)
     }
 
-    /// Gets a parameter value by its key.
+    /// Gets the parameter value by its key.
     ///
     /// The key is case-insensitive.
     pub fn get_param(&self, key: &Name) -> Option<&str> {
@@ -76,7 +76,7 @@ impl MediaTypeBuf {
             .map(|index| &self.data[params[index][2] as usize..params[index][3] as usize])
     }
 
-    /// Returns the canonicalized `MediaType`.
+    /// Returns the canonicalized `MediaTypeBuf`.
     ///
     /// All strings except parameter values will be converted to lowercase.
     ///
