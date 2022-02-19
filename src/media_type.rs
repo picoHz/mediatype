@@ -103,6 +103,21 @@ impl<'a> MediaType<'a> {
         Params::from_slice(&self.params)
     }
 
+    /// Sets the top-level type.
+    pub fn set_ty<'t: 'a>(&mut self, ty: &'t Name) {
+        self.ty = *ty;
+    }
+
+    /// Sets the subtype.
+    pub fn set_subty<'t: 'a>(&mut self, subty: &'t Name) {
+        self.subty = *subty;
+    }
+
+    /// Sets the suffix.
+    pub fn set_suffix<'s: 'a>(&mut self, suffix: &'s Option<Name>) {
+        self.suffix = *suffix;
+    }
+
     /// Gets a parameter value by its key.
     ///
     /// The key is case-insensitive.
@@ -238,6 +253,29 @@ mod tests {
             MediaType::from_parts(IMAGE, SVG, Some(XML), Some(&[(CHARSET, UTF_8)])).to_string(),
             "image/svg+xml; charset=utf-8"
         );
+    }
+
+    #[test]
+    fn set_ty() {
+        let mut media_type = MediaType::from_parts(TEXT, PLAIN, None, Some(&[(CHARSET, UTF_8)]));
+        let upper_text = Name::new("TEXT").unwrap();
+        media_type.set_ty(&upper_text);
+        assert_eq!(media_type.to_string(), "TEXT/plain; charset=utf-8");
+    }
+
+    #[test]
+    fn set_subty() {
+        let mut media_type = MediaType::from_parts(TEXT, PLAIN, None, Some(&[(CHARSET, UTF_8)]));
+        let markdown = Name::new("markdown").unwrap();
+        media_type.set_subty(&markdown);
+        assert_eq!(media_type.to_string(), "text/markdown; charset=utf-8");
+    }
+
+    #[test]
+    fn set_suffix() {
+        let mut media_type = MediaType::from_parts(IMAGE, SVG, None, Some(&[(CHARSET, UTF_8)]));
+        media_type.set_suffix(&Some(XML));
+        assert_eq!(media_type.to_string(), "image/svg+xml; charset=utf-8");
     }
 
     #[test]
