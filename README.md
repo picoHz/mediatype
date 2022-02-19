@@ -11,6 +11,14 @@ MediaType for Rust
 
 </div>
 
+This crate provides two MediaType structs: 
+[`MediaType`](https://docs.rs/mediatype/latest/mediatype/struct.MediaType.html) and 
+[`MediaTypeBuf`](https://docs.rs/mediatype/latest/mediatype/struct.MediaTypeBuf.html).
+
+- [`MediaType`](https://docs.rs/mediatype/latest/mediatype/struct.MediaType.html) does not copy data during parsing
+    and just holds reference to the original string. It is also const-constructible.
+- [`MediaTypeBuf`](https://docs.rs/mediatype/latest/mediatype/struct.MediaTypeBuf.html) is an owned version of `MediaType`.
+
 ```rust
 use mediatype::{consts::*, MediaType, MediaTypeBuf};
 
