@@ -57,4 +57,12 @@ impl<'a> Iterator for Params<'a> {
             }
         }
     }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        let len = match self.source {
+            ParamsSource::Slice(s) => s.len(),
+            ParamsSource::Indices(_, i) => i.params().len(),
+        };
+        (len, Some(len))
+    }
 }
