@@ -96,13 +96,6 @@ impl<'a> MediaType<'a> {
         self.suffix.map(|x| x.0)
     }
 
-    /// Returns an iterator over the parameters.
-    ///
-    /// The parameters are alphabetically sorted by their key.
-    pub fn params(&self) -> Params {
-        Params::from_slice(&self.params)
-    }
-
     /// Sets the top-level type.
     pub fn set_ty<'t: 'a>(&mut self, ty: &'t Name) {
         self.ty = *ty;
@@ -116,6 +109,13 @@ impl<'a> MediaType<'a> {
     /// Sets the suffix.
     pub fn set_suffix<'s: 'a>(&mut self, suffix: &'s Option<Name>) {
         self.suffix = *suffix;
+    }
+
+    /// Returns an iterator over the parameters.
+    ///
+    /// The parameters are alphabetically sorted by their key.
+    pub fn params(&self) -> Params {
+        Params::from_slice(&self.params)
     }
 
     /// Gets a parameter value by its key.

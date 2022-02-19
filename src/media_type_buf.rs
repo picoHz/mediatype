@@ -45,13 +45,6 @@ impl MediaTypeBuf {
         self.indices.suffix().map(|range| &self.data[range])
     }
 
-    /// Returns an iterator over the parameters.
-    ///
-    /// The parameters are alphabetically sorted by their key.
-    pub fn params(&self) -> Params {
-        Params::from_indices(&self.data, &self.indices)
-    }
-
     /// Returns the string representation without parameters.
     /// ```
     /// # use mediatype::MediaTypeBuf;
@@ -61,6 +54,13 @@ impl MediaTypeBuf {
     /// ```
     pub fn essence(&self) -> &str {
         self.data.split(';').next().unwrap()
+    }
+
+    /// Returns an iterator over the parameters.
+    ///
+    /// The parameters are alphabetically sorted by their key.
+    pub fn params(&self) -> Params {
+        Params::from_indices(&self.data, &self.indices)
     }
 
     /// Gets a parameter value by its key.
