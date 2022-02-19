@@ -39,13 +39,10 @@ impl MediaTypeBuf {
     /// Gets a parameter value by its key.
     ///
     /// The key is case-insensitive.
-    pub fn get_param<T>(&self, key: T) -> Option<&str>
-    where
-        T: AsRef<str>,
-    {
+    pub fn get_param(&self, key: &Name) -> Option<&str> {
         let params = self.indices.params();
         params
-            .binary_search_by_key(&Name(key.as_ref()), |&[start, end, _, _]| {
+            .binary_search_by_key(key, |&[start, end, _, _]| {
                 Name(&self.data[start as usize..end as usize])
             })
             .ok()
@@ -188,25 +185,26 @@ impl fmt::Display for MediaTypeBuf {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::consts::*;
 
     #[test]
     fn get_param() {
         assert_eq!(
             MediaTypeBuf::from_str("image/svg+xml")
                 .unwrap()
-                .get_param("charset"),
+                .get_param(&CHARSET),
             None
         );
         assert_eq!(
             MediaTypeBuf::from_str("image/svg+xml; charset=utf-8")
                 .unwrap()
-                .get_param("charset"),
+                .get_param(&CHARSET),
             Some("utf-8")
         );
         assert_eq!(
             MediaTypeBuf::from_str("image/svg+xml; charset=utf-8; HELLO=WORLD")
                 .unwrap()
-                .get_param("hello"),
+                .get_param(&Name::new("hello").unwrap()),
             Some("WORLD")
         );
     }
