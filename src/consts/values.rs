@@ -2,5 +2,5 @@
 
 use crate::value::*;
 
-/// `utf-8`
-pub const UTF_8: Value = Value("utf-8");
+/// `UTF-8`
+pub const UTF_8: Value = Value("UTF-8");

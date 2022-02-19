@@ -212,13 +212,13 @@ mod tests {
             None
         );
         assert_eq!(
-            MediaTypeBuf::from_str("image/svg+xml; charset=utf-8")
+            MediaTypeBuf::from_str("image/svg+xml; charset=UTF-8")
                 .unwrap()
                 .get_param(&CHARSET),
-            Some("utf-8")
+            Some("UTF-8")
         );
         assert_eq!(
-            MediaTypeBuf::from_str("image/svg+xml; charset=utf-8; HELLO=WORLD")
+            MediaTypeBuf::from_str("image/svg+xml; charset=UTF-8; HELLO=WORLD")
                 .unwrap()
                 .get_param(&Name::new("hello").unwrap()),
             Some("WORLD")
@@ -232,12 +232,12 @@ mod tests {
             MediaTypeBuf::from_str("TEXT/PLAIN").unwrap()
         );
         assert_eq!(
-            MediaTypeBuf::from_str("image/svg+xml; charset=utf-8").unwrap(),
-            MediaTypeBuf::from_str("IMAGE/SVG+XML; CHARSET=UTF-8").unwrap()
+            MediaTypeBuf::from_str("image/svg+xml; charset=UTF-8").unwrap(),
+            MediaTypeBuf::from_str("IMAGE/SVG+XML; CHARSET=utf-8").unwrap()
         );
         assert_eq!(
-            MediaTypeBuf::from_str("image/svg+xml; hello=world; charset=utf-8").unwrap(),
-            MediaTypeBuf::from_str("IMAGE/SVG+XML; CHARSET=UTF-8; HELLO=WORLD").unwrap()
+            MediaTypeBuf::from_str("image/svg+xml; hello=world; charset=UTF-8").unwrap(),
+            MediaTypeBuf::from_str("IMAGE/SVG+XML; CHARSET=utf-8; HELLO=WORLD").unwrap()
         );
     }
 }

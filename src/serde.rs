@@ -50,7 +50,7 @@ mod tests {
 
     #[test]
     fn serde() {
-        let original = MediaTypeBuf::from_str("image/svg+xml; charset=utf-8;").unwrap();
+        let original = MediaTypeBuf::from_str("image/svg+xml; charset=UTF-8;").unwrap();
         let json = serde_json::to_string(&original).unwrap();
         let decoded: MediaType = serde_json::from_str(&json).unwrap();
         assert_eq!(original, decoded);

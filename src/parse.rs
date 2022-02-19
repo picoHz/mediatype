@@ -213,20 +213,20 @@ mod tests {
             Ok("image/svg+xml".into())
         );
         assert_eq!(
-            parse_to_string("image/svg+xml; charset=utf-8"),
-            Ok("image/svg+xml; charset=utf-8".into())
+            parse_to_string("image/svg+xml; charset=UTF-8"),
+            Ok("image/svg+xml; charset=UTF-8".into())
         );
         assert_eq!(
-            parse_to_string("image/svg+xml; charset=utf-8;"),
-            Ok("image/svg+xml; charset=utf-8".into())
+            parse_to_string("image/svg+xml; charset=UTF-8;"),
+            Ok("image/svg+xml; charset=UTF-8".into())
         );
         assert_eq!(
-            parse_to_string("image/svg+xml    ; charset=utf-8   "),
-            Ok("image/svg+xml; charset=utf-8".into())
+            parse_to_string("image/svg+xml    ; charset=UTF-8   "),
+            Ok("image/svg+xml; charset=UTF-8".into())
         );
         assert_eq!(
-            parse_to_string("image/svg+xml; charset=\"utf-8\""),
-            Ok("image/svg+xml; charset=utf-8".into())
+            parse_to_string("image/svg+xml; charset=\"UTF-8\""),
+            Ok("image/svg+xml; charset=UTF-8".into())
         );
         assert_eq!(
             parse_to_string("multipart/form-data ; boundary=--boundary13234"),
@@ -253,7 +253,7 @@ mod tests {
             Err(ParseError::InvalidTypeName)
         );
         assert_eq!(
-            parse_to_string("text/plain; charsetutf-8"),
+            parse_to_string("text/plain; charsetUTF-8"),
             Err(ParseError::InvalidParams)
         );
         assert_eq!(
@@ -265,19 +265,19 @@ mod tests {
             Err(ParseError::InvalidParams)
         );
         assert_eq!(
-            parse_to_string("text/plain; charset=utf-8; charset=utf-8"),
+            parse_to_string("text/plain; charset=UTF-8; charset=UTF-8"),
             Err(ParseError::DuplicatedParamKeys)
         );
         assert_eq!(
-            parse_to_string("text/plain; charset=\"utf-8"),
+            parse_to_string("text/plain; charset=\"UTF-8"),
             Err(ParseError::InvalidParamValue)
         );
         assert_eq!(
-            parse_to_string("text/plain; charset==utf-8"),
+            parse_to_string("text/plain; charset==UTF-8"),
             Err(ParseError::InvalidParamValue)
         );
         assert_eq!(
-            parse_to_string("text/plain; \r\n charset=utf-8;"),
+            parse_to_string("text/plain; \r\n charset=UTF-8;"),
             Err(ParseError::InvalidParamKey)
         );
 

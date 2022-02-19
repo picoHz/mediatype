@@ -42,7 +42,7 @@ impl<'a> MediaType<'a> {
     ///     MediaType::from_parts(IMAGE, SVG, Some(XML), Some(&[(CHARSET, UTF_8)]));
     /// assert_eq!(
     ///     IMAGE_SVG,
-    ///     MediaType::parse("image/svg+xml; charset=utf-8").unwrap()
+    ///     MediaType::parse("image/svg+xml; charset=UTF-8").unwrap()
     /// );
     /// ```
     pub const fn from_parts(
@@ -247,11 +247,11 @@ mod tests {
         );
         assert_eq!(
             MediaType::from_parts(TEXT, PLAIN, None, Some(&[(CHARSET, UTF_8)])).to_string(),
-            "text/plain; charset=utf-8"
+            "text/plain; charset=UTF-8"
         );
         assert_eq!(
             MediaType::from_parts(IMAGE, SVG, Some(XML), Some(&[(CHARSET, UTF_8)])).to_string(),
-            "image/svg+xml; charset=utf-8"
+            "image/svg+xml; charset=UTF-8"
         );
     }
 
@@ -260,7 +260,7 @@ mod tests {
         let mut media_type = MediaType::from_parts(TEXT, PLAIN, None, Some(&[(CHARSET, UTF_8)]));
         let upper_text = Name::new("TEXT").unwrap();
         media_type.set_ty(&upper_text);
-        assert_eq!(media_type.to_string(), "TEXT/plain; charset=utf-8");
+        assert_eq!(media_type.to_string(), "TEXT/plain; charset=UTF-8");
     }
 
     #[test]
@@ -268,14 +268,14 @@ mod tests {
         let mut media_type = MediaType::from_parts(TEXT, PLAIN, None, Some(&[(CHARSET, UTF_8)]));
         let markdown = Name::new("markdown").unwrap();
         media_type.set_subty(&markdown);
-        assert_eq!(media_type.to_string(), "text/markdown; charset=utf-8");
+        assert_eq!(media_type.to_string(), "text/markdown; charset=UTF-8");
     }
 
     #[test]
     fn set_suffix() {
         let mut media_type = MediaType::from_parts(IMAGE, SVG, None, Some(&[(CHARSET, UTF_8)]));
         media_type.set_suffix(&Some(XML));
-        assert_eq!(media_type.to_string(), "image/svg+xml; charset=utf-8");
+        assert_eq!(media_type.to_string(), "image/svg+xml; charset=UTF-8");
     }
 
     #[test]
@@ -283,10 +283,10 @@ mod tests {
         assert_eq!(MediaType::new(TEXT, PLAIN).get_param(&CHARSET), None);
         assert_eq!(
             MediaType::from_parts(TEXT, PLAIN, None, Some(&[(CHARSET, UTF_8)])).get_param(&CHARSET),
-            Some("utf-8")
+            Some("UTF-8")
         );
         assert_eq!(
-            MediaType::parse("image/svg+xml; charset=utf-8; HELLO=WORLD")
+            MediaType::parse("image/svg+xml; charset=UTF-8; HELLO=WORLD")
                 .unwrap()
                 .get_param(&Name::new("hello").unwrap()),
             Some("WORLD")
@@ -296,16 +296,16 @@ mod tests {
     #[test]
     fn set_param() {
         let mut media_type = MediaType::from_parts(TEXT, PLAIN, None, Some(&[(CHARSET, UTF_8)]));
-        let upper_utf8 = Value::new("UTF-8").unwrap();
-        assert_eq!(media_type.set_param(&CHARSET, &upper_utf8), Some("utf-8"));
-        assert_eq!(media_type.to_string(), "text/plain; charset=UTF-8");
+        let lower_utf8 = Value::new("utf-8").unwrap();
+        assert_eq!(media_type.set_param(&CHARSET, &lower_utf8), Some("UTF-8"));
+        assert_eq!(media_type.to_string(), "text/plain; charset=utf-8");
 
         let alice = Name::new("ALICE").unwrap();
         let bob = Value::new("bob").unwrap();
         assert_eq!(media_type.set_param(&alice, &bob), None);
         assert_eq!(
             media_type.to_string(),
-            "text/plain; ALICE=bob; charset=UTF-8"
+            "text/plain; ALICE=bob; charset=utf-8"
         );
     }
 
@@ -314,17 +314,17 @@ mod tests {
         assert_eq!(MediaType::new(TEXT, PLAIN).remove_param(&CHARSET), None);
 
         let mut media_type = MediaType::from_parts(TEXT, PLAIN, None, Some(&[(CHARSET, UTF_8)]));
-        assert_eq!(media_type.remove_param(&CHARSET), Some("utf-8"));
+        assert_eq!(media_type.remove_param(&CHARSET), Some("UTF-8"));
         assert_eq!(media_type.remove_param(&CHARSET), None);
         assert_eq!(media_type.to_string(), "text/plain");
 
-        let mut media_type = MediaType::parse("image/svg+xml; charset=utf-8; HELLO=WORLD").unwrap();
+        let mut media_type = MediaType::parse("image/svg+xml; charset=UTF-8; HELLO=WORLD").unwrap();
         assert_eq!(
             media_type.remove_param(&Name::new("hello").unwrap()),
             Some("WORLD")
         );
         assert_eq!(media_type.remove_param(&Name::new("hello").unwrap()), None);
-        assert_eq!(media_type.to_string(), "image/svg+xml; charset=utf-8");
+        assert_eq!(media_type.to_string(), "image/svg+xml; charset=UTF-8");
     }
 
     #[test]
@@ -334,12 +334,12 @@ mod tests {
             MediaType::parse("TEXT/PLAIN").unwrap()
         );
         assert_eq!(
-            MediaType::parse("image/svg+xml; charset=utf-8").unwrap(),
-            MediaType::parse("IMAGE/SVG+XML; CHARSET=UTF-8").unwrap()
+            MediaType::parse("image/svg+xml; charset=UTF-8").unwrap(),
+            MediaType::parse("IMAGE/SVG+XML; CHARSET=utf-8").unwrap()
         );
         assert_eq!(
-            MediaType::parse("image/svg+xml; hello=world; charset=utf-8").unwrap(),
-            MediaType::parse("IMAGE/SVG+XML; CHARSET=UTF-8; HELLO=WORLD").unwrap()
+            MediaType::parse("image/svg+xml; hello=world; charset=UTF-8").unwrap(),
+            MediaType::parse("IMAGE/SVG+XML; CHARSET=utf-8; HELLO=WORLD").unwrap()
         );
     }
 }
