@@ -116,6 +116,19 @@ impl<'a> MediaType<'a> {
             .map(|index| self.params[index].1.as_ref())
     }
 
+    /// Removes and returns a parameter value by its key.
+    ///
+    /// The key is case-insensitive.
+    pub fn remove_param<T>(&mut self, key: T) -> Option<&str>
+    where
+        T: AsRef<str>,
+    {
+        self.params
+            .binary_search_by_key(&Name(key.as_ref()), |(key, _)| *key)
+            .ok()
+            .map(|index| self.params.to_mut().remove(index).1 .0)
+    }
+
     pub(crate) fn ty_name(&self) -> Name<'a> {
         self.ty
     }
@@ -227,6 +240,21 @@ mod tests {
                 .get_param("hello"),
             Some("WORLD")
         );
+    }
+
+    #[test]
+    fn remove_param() {
+        assert_eq!(MediaType::new(TEXT, PLAIN).remove_param(CHARSET), None);
+
+        let mut media_type = MediaType::from_parts(TEXT, PLAIN, None, Some(&[(CHARSET, UTF_8)]));
+        assert_eq!(media_type.remove_param(CHARSET), Some("utf-8"));
+        assert_eq!(media_type.remove_param(CHARSET), None);
+        assert_eq!(media_type.to_string(), "text/plain");
+
+        let mut media_type = MediaType::parse("image/svg+xml; charset=utf-8; HELLO=WORLD").unwrap();
+        assert_eq!(media_type.remove_param("hello"), Some("WORLD"));
+        assert_eq!(media_type.remove_param("hello"), None);
+        assert_eq!(media_type.to_string(), "image/svg+xml; charset=utf-8");
     }
 
     #[test]
