@@ -80,7 +80,9 @@ impl Indices {
         let (mut params, params_len) = parse_params(&s[params_start as usize..])?;
         for elem in params.iter_mut() {
             for v in elem.iter_mut() {
-                *v += params_start as u16;
+                *v = v
+                    .checked_add(params_start as u16)
+                    .ok_or(ParseError::TooLongInput)?;
             }
         }
         params.sort_unstable_by_key(|&[start, end, _, _]| Name(&s[start as usize..end as usize]));
@@ -93,11 +95,21 @@ impl Indices {
             }
         }
 
+        let ty = ty.len().try_into().map_err(|_| ParseError::TooLongInput)?;
+        let subty = subty
+            .len()
+            .try_into()
+            .map_err(|_| ParseError::TooLongInput)?;
+        let suffix = suffix
+            .len()
+            .try_into()
+            .map_err(|_| ParseError::TooLongInput)?;
+
         Ok((
             Self {
-                ty: NonZeroU16::new(ty.len() as _).unwrap(),
-                subty: NonZeroU16::new(subty.len() as _).unwrap(),
-                suffix: suffix.len() as _,
+                ty: NonZeroU16::new(ty).unwrap(),
+                subty: NonZeroU16::new(subty).unwrap(),
+                suffix,
                 params: params.into_boxed_slice(),
             },
             params_start + params_len,
@@ -159,10 +171,18 @@ fn parse_params(s: &str) -> Result<(Vec<[u16; 4]>, usize), ParseError> {
         if !empty {
             let (key, value) = parse_param(param)?;
             vec.push([
-                (offset + key.start) as u16,
-                (offset + key.end) as u16,
-                (offset + value.start) as u16,
-                (offset + value.end) as u16,
+                (offset + key.start)
+                    .try_into()
+                    .map_err(|_| ParseError::TooLongInput)?,
+                (offset + key.end)
+                    .try_into()
+                    .map_err(|_| ParseError::TooLongInput)?,
+                (offset + value.start)
+                    .try_into()
+                    .map_err(|_| ParseError::TooLongInput)?,
+                (offset + value.end)
+                    .try_into()
+                    .map_err(|_| ParseError::TooLongInput)?,
             ]);
             len = offset + value.end;
         }
