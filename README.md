@@ -20,7 +20,7 @@ This crate provides two MediaType structs:
 - [`MediaTypeBuf`](https://docs.rs/mediatype/latest/mediatype/struct.MediaTypeBuf.html) is an owned and immutable version of `MediaType`.
 
 ```rust
-use mediatype::{consts::*, MediaType, MediaTypeBuf};
+use mediatype::{names::*, MediaType, MediaTypeBuf};
 
 const TEXT_PLAIN: MediaType = MediaType::new(TEXT, PLAIN);
 let text_plain: MediaTypeBuf = "text/plain".parse().unwrap();

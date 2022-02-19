@@ -18,7 +18,7 @@ pub struct MediaType<'a> {
 impl<'a> MediaType<'a> {
     /// Constructs a `MediaType` from a top-level type and a subtype.
     /// ```
-    /// # use mediatype::{consts::*, MediaType};
+    /// # use mediatype::{names::*, MediaType};
     /// const IMAGE_PNG: MediaType = MediaType::new(IMAGE, PNG);
     /// assert_eq!(IMAGE_PNG, MediaType::parse("image/png").unwrap());
     /// ```
@@ -37,7 +37,7 @@ impl<'a> MediaType<'a> {
     /// because key duplication is not detectable at compile-time.
     ///
     /// ```
-    /// # use mediatype::{consts::*, MediaType};
+    /// # use mediatype::{names::*, MediaType};
     /// const IMAGE_SVG: MediaType =
     ///     MediaType::from_parts(IMAGE, SVG, Some(XML), Some(&[(CHARSET, UTF_8)]));
     /// assert_eq!(
@@ -236,7 +236,7 @@ impl<'a> Hash for MediaType<'a> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::consts::*;
+    use crate::names::*;
 
     #[test]
     fn to_string() {

@@ -6,12 +6,12 @@ use std::{
 };
 
 const PREFIXES: &[(&str, &str)] = &[
-    ("x-", "consts_generated.x_.rs"),
-    ("vnd.", "consts_generated.vnd.rs"),
-    ("", "consts_generated.rs"),
+    ("x-", "names_generated.x_.rs"),
+    ("vnd.", "names_generated.vnd.rs"),
+    ("", "names_generated.rs"),
 ];
 
-const INPUT: &str = "src/consts.txt";
+const INPUT: &str = "src/consts/names.txt";
 
 fn main() {
     let out_dir = env::var_os("OUT_DIR").unwrap();

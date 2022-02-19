@@ -185,7 +185,7 @@ impl fmt::Display for MediaTypeBuf {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::consts::*;
+    use crate::names::*;
 
     #[test]
     fn get_param() {

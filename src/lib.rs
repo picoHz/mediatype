@@ -8,7 +8,7 @@
 //! [`MediaTypeBuf`]: ./struct.MediaTypeBuf.html
 //!
 //!  ```
-//! use mediatype::{consts::*, MediaType, MediaTypeBuf};
+//! use mediatype::{names::*, MediaType, MediaTypeBuf};
 //!
 //! const TEXT_PLAIN: MediaType = MediaType::new(TEXT, PLAIN);
 //! let text_plain: MediaTypeBuf = "text/plain".parse().unwrap();
@@ -26,7 +26,7 @@
 #![forbid(clippy::all)]
 #![cfg_attr(docsrs, feature(doc_cfg))]
 
-pub mod consts;
+mod consts;
 mod error;
 mod media_type;
 mod media_type_buf;
@@ -35,6 +35,7 @@ mod params;
 mod parse;
 mod serde;
 
+pub use consts::*;
 pub use error::*;
 pub use media_type::*;
 pub use media_type_buf::*;
