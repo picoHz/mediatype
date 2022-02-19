@@ -1,4 +1,4 @@
-use super::{error::*, name::*, params::*, parse::*};
+use super::{error::*, name::*, params::*, parse::*, value::*};
 use std::{
     borrow::Cow,
     cmp::Ordering,
@@ -12,7 +12,7 @@ pub struct MediaType<'a> {
     ty: Name<'a>,
     subty: Name<'a>,
     suffix: Option<Name<'a>>,
-    params: Cow<'a, [(Name<'a>, Name<'a>)]>,
+    params: Cow<'a, [(Name<'a>, Value<'a>)]>,
 }
 
 impl<'a> MediaType<'a> {
@@ -37,7 +37,7 @@ impl<'a> MediaType<'a> {
     /// because key duplication is not detectable at compile-time.
     ///
     /// ```
-    /// # use mediatype::{names::*, MediaType};
+    /// # use mediatype::{names::*, values::*, MediaType};
     /// const IMAGE_SVG: MediaType =
     ///     MediaType::from_parts(IMAGE, SVG, Some(XML), Some(&[(CHARSET, UTF_8)]));
     /// assert_eq!(
@@ -49,9 +49,9 @@ impl<'a> MediaType<'a> {
         ty: Name<'a>,
         subty: Name<'a>,
         suffix: Option<Name<'a>>,
-        param: Option<&'a [(Name<'a>, Name<'a>); 1]>,
+        param: Option<&'a [(Name<'a>, Value<'a>); 1]>,
     ) -> Self {
-        let params: &[(Name, Name)] = if let Some(param) = param { param } else { &[] };
+        let params: &[(Name, Value)] = if let Some(param) = param { param } else { &[] };
         Self {
             ty,
             subty,
@@ -69,7 +69,7 @@ impl<'a> MediaType<'a> {
             .map(|param| {
                 (
                     Name(&s[param[0] as usize..param[1] as usize]),
-                    Name(&s[param[2] as usize..param[3] as usize]),
+                    Value(&s[param[2] as usize..param[3] as usize]),
                 )
             })
             .collect();
@@ -133,7 +133,7 @@ impl<'a> MediaType<'a> {
     /// If the parameter is already set, replaces it with a new value and
     /// returns the old value.
     /// The key is case-insensitive.
-    pub fn set_param<'k: 'a, 'v: 'a>(&mut self, key: &'k Name, value: &'v Name) -> Option<&str> {
+    pub fn set_param<'k: 'a, 'v: 'a>(&mut self, key: &'k Name, value: &'v Value) -> Option<&str> {
         if let Ok(index) = self
             .params
             .binary_search_by_key(&Name(key.as_ref()), |(key, _)| *key)
@@ -236,7 +236,7 @@ impl<'a> Hash for MediaType<'a> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::names::*;
+    use crate::{names::*, values::*};
 
     #[test]
     fn to_string() {
@@ -296,12 +296,12 @@ mod tests {
     #[test]
     fn set_param() {
         let mut media_type = MediaType::from_parts(TEXT, PLAIN, None, Some(&[(CHARSET, UTF_8)]));
-        let upper_utf8 = Name::new("UTF-8").unwrap();
+        let upper_utf8 = Value::new("UTF-8").unwrap();
         assert_eq!(media_type.set_param(&CHARSET, &upper_utf8), Some("utf-8"));
         assert_eq!(media_type.to_string(), "text/plain; charset=UTF-8");
 
         let alice = Name::new("ALICE").unwrap();
-        let bob = Name::new("bob").unwrap();
+        let bob = Value::new("bob").unwrap();
         assert_eq!(media_type.set_param(&alice, &bob), None);
         assert_eq!(
             media_type.to_string(),

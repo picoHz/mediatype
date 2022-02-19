@@ -1,4 +1,4 @@
-use super::{name::*, parse::*};
+use super::{name::*, parse::*, value::*};
 
 /// An iterator over the parameters.
 #[derive(Debug)]
@@ -8,7 +8,7 @@ pub struct Params<'a> {
 }
 
 impl<'a> Params<'a> {
-    pub(crate) fn from_slice(s: &'a [(Name<'a>, Name<'a>)]) -> Self {
+    pub(crate) fn from_slice(s: &'a [(Name<'a>, Value<'a>)]) -> Self {
         Self {
             source: ParamsSource::Slice(s),
             index: 0,
@@ -25,7 +25,7 @@ impl<'a> Params<'a> {
 
 #[derive(Debug)]
 enum ParamsSource<'a> {
-    Slice(&'a [(Name<'a>, Name<'a>)]),
+    Slice(&'a [(Name<'a>, Value<'a>)]),
     Indices(&'a str, &'a Indices),
 }
 

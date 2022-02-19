@@ -645,7 +645,6 @@ urc-targetdesc
 urc-uisocketdesc
 uri-list
 usac
-utf-8
 vc1
 vc2
 vcard

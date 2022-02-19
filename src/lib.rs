@@ -34,6 +34,7 @@ mod name;
 mod params;
 mod parse;
 mod serde;
+mod value;
 
 pub use consts::*;
 pub use error::*;
@@ -41,3 +42,4 @@ pub use media_type::*;
 pub use media_type_buf::*;
 pub use name::*;
 pub use params::*;
+pub use value::*;
