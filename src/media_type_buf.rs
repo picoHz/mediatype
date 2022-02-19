@@ -60,7 +60,7 @@ impl MediaTypeBuf {
     /// assert_eq!(media_type.essence(), "image/svg+xml");
     /// ```
     pub fn essence(&self) -> &str {
-        self.data.split(";").next().unwrap()
+        self.data.split(';').next().unwrap()
     }
 
     /// Gets a parameter value by its key.
