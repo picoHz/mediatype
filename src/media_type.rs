@@ -115,26 +115,21 @@ impl<'a> MediaType<'a> {
 
     /// Sets a parameter value.
     ///
+    /// If the parameter is already set, replaces it with a new value and
+    /// returns the old value.
     /// The key is case-insensitive.
-    pub fn set_param<'k: 'a, 'v: 'a>(
-        &mut self,
-        key: &'k Name,
-        value: &'v Name,
-    ) -> Result<(), ParseError> {
-        if !is_restricted_name(key.as_ref()) {
-            return Err(ParseError::InvalidParamKey);
-        }
+    pub fn set_param<'k: 'a, 'v: 'a>(&mut self, key: &'k Name, value: &'v Name) -> Option<&str> {
         if let Ok(index) = self
             .params
             .binary_search_by_key(&Name(key.as_ref()), |(key, _)| *key)
         {
-            self.params.to_mut()[index].1 = *value;
+            Some(std::mem::replace(&mut self.params.to_mut()[index].1, *value).0)
         } else {
             let params = self.params.to_mut();
             params.push((*key, *value));
             params.sort_unstable_by_key(|&(key, _)| key);
+            None
         }
-        Ok(())
     }
 
     /// Removes and returns a parameter value by its key.
@@ -264,12 +259,12 @@ mod tests {
     fn set_param() {
         let mut media_type = MediaType::from_parts(TEXT, PLAIN, None, Some(&[(CHARSET, UTF_8)]));
         let upper_utf8 = Name::new("UTF-8").unwrap();
-        assert_eq!(media_type.set_param(&CHARSET, &upper_utf8), Ok(()));
+        assert_eq!(media_type.set_param(&CHARSET, &upper_utf8), Some("utf-8"));
         assert_eq!(media_type.to_string(), "text/plain; charset=UTF-8");
 
         let alice = Name::new("ALICE").unwrap();
         let bob = Name::new("bob").unwrap();
-        assert_eq!(media_type.set_param(&alice, &bob), Ok(()));
+        assert_eq!(media_type.set_param(&alice, &bob), None);
         assert_eq!(
             media_type.to_string(),
             "text/plain; ALICE=bob; charset=UTF-8"

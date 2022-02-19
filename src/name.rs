@@ -11,7 +11,7 @@ pub struct Name<'a>(pub(crate) &'a str);
 
 impl<'a> Name<'a> {
     pub fn new(s: &'a str) -> Option<Self> {
-        if is_restricted_str(s) {
+        if is_restricted_name(s) {
             Some(Self(s))
         } else {
             None
