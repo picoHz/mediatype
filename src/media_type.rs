@@ -1,4 +1,4 @@
-use super::{name::*, params::*, parse::*};
+use super::{error::*, name::*, params::*, parse::*};
 use std::{
     borrow::Cow,
     cmp::Ordering,

@@ -1,4 +1,4 @@
-use super::{media_type::*, name::*, params::*, parse::*};
+use super::{error::*, media_type::*, name::*, params::*, parse::*};
 use std::{
     cmp::Ordering,
     fmt,

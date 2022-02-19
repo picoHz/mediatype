@@ -1,5 +1,5 @@
-use super::name::*;
-use std::{error, fmt, num::NonZeroU16, ops::Range};
+use super::{error::*, name::*};
+use std::{num::NonZeroU16, ops::Range};
 
 const INPUT_LENGTH_HARD_LIMIT: usize = std::u16::MAX as usize - 1;
 const TYPE_NAME_LENGTH_HARD_LIMIT: usize = 127;
@@ -174,34 +174,3 @@ fn parse_param(s: &str) -> Result<(Range<usize>, Range<usize>), ParseError> {
         Err(ParseError::InvalidParams)
     }
 }
-
-/// Parsing error.
-#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
-pub enum ParseError {
-    TooLongInput,
-    InvalidTypeName,
-    InvalidSubtypeName,
-    InvalidSuffix,
-    InvalidParams,
-    InvalidParamKey,
-    InvalidParamValue,
-    DuplicatedParamKeys,
-}
-
-impl fmt::Display for ParseError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let msg = match self {
-            Self::TooLongInput => "Too long input",
-            Self::InvalidTypeName => "Invalid type name",
-            Self::InvalidSubtypeName => "Invalid subtype name",
-            Self::InvalidSuffix => "Invalid suffix",
-            Self::InvalidParams => "Invalid params",
-            Self::InvalidParamKey => "Invalid param key",
-            Self::InvalidParamValue => "Invalid param value",
-            Self::DuplicatedParamKeys => "Duplicated param keys",
-        };
-        f.write_str(msg)
-    }
-}
-
-impl error::Error for ParseError {}

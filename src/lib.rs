@@ -27,6 +27,7 @@
 #![cfg_attr(docsrs, feature(doc_cfg))]
 
 pub mod consts;
+mod error;
 mod media_type;
 mod media_type_buf;
 mod name;
@@ -34,8 +35,8 @@ mod params;
 mod parse;
 mod serde;
 
+pub use error::*;
 pub use media_type::*;
 pub use media_type_buf::*;
 pub use name::*;
 pub use params::*;
-pub use parse::*;
