@@ -14,6 +14,22 @@ pub struct MediaTypeBuf {
 }
 
 impl MediaTypeBuf {
+    /// Constructs a `MediaTypeBuf` from [`String`].
+    ///
+    /// Unlike [`FromStr::from_str`], this function takes the ownership of [`String`]
+    /// instead of making a new copy.
+    ///
+    /// [`String`]: https://doc.rust-lang.org/std/string/struct.String.html
+    /// [`FromStr::from_str`]: https://doc.rust-lang.org/std/str/trait.FromStr.html
+    pub fn from_string(mut s: String) -> Result<Self, ParseError> {
+        let (indices, len) = Indices::parse(&s)?;
+        s.truncate(len);
+        Ok(Self {
+            data: s.into(),
+            indices,
+        })
+    }
+
     /// Returns the top-level type.
     pub fn ty(&self) -> &str {
         &self.data[self.indices.ty()]
