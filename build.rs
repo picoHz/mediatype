@@ -35,6 +35,17 @@ fn main() {
         if let Some((&pf, out)) = prefixes.iter_mut().find(|(&pf, _)| ident.starts_with(pf)) {
             let ident = ident
                 .trim_start_matches(pf)
+                .split_inclusive(char::is_uppercase)
+                .map(|chunk| {
+                    if chunk.ends_with(char::is_uppercase) {
+                        let prefix = chunk.trim_end_matches(char::is_uppercase);
+                        if prefix.ends_with(char::is_lowercase) {
+                            return format!("{}_{}", prefix, chunk.split_at(chunk.len() - 1).1);
+                        }
+                    }
+                    chunk.to_string()
+                })
+                .collect::<String>()
                 .replace('+', "_plus")
                 .replace(|c| !char::is_alphanumeric(c), "_")
                 .to_ascii_uppercase();
