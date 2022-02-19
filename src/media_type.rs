@@ -215,44 +215,6 @@ mod tests {
     }
 
     #[test]
-    fn parse() {
-        assert_eq!(
-            MediaType::parse("text/plain").unwrap().to_string(),
-            "text/plain"
-        );
-        assert_eq!(
-            MediaType::parse("text/plain;").unwrap().to_string(),
-            "text/plain"
-        );
-        assert_eq!(
-            MediaType::parse("image/svg+xml").unwrap().to_string(),
-            "image/svg+xml"
-        );
-        assert_eq!(
-            MediaType::parse("image/svg+xml;").unwrap().to_string(),
-            "image/svg+xml"
-        );
-        assert_eq!(
-            MediaType::parse("image/svg+xml; charset=utf-8")
-                .unwrap()
-                .to_string(),
-            "image/svg+xml; charset=utf-8"
-        );
-        assert_eq!(
-            MediaType::parse("image/svg+xml    ; charset=utf-8   ")
-                .unwrap()
-                .to_string(),
-            "image/svg+xml; charset=utf-8"
-        );
-        assert_eq!(
-            MediaType::parse("image/svg+xml; charset=\"utf-8\"")
-                .unwrap()
-                .to_string(),
-            "image/svg+xml; charset=utf-8"
-        );
-    }
-
-    #[test]
     fn get_param() {
         assert_eq!(MediaType::new(TEXT, PLAIN).get_param(CHARSET), None);
         assert_eq!(
@@ -264,6 +226,22 @@ mod tests {
                 .unwrap()
                 .get_param("hello"),
             Some("WORLD")
+        );
+    }
+
+    #[test]
+    fn cmp() {
+        assert_eq!(
+            MediaType::parse("text/plain").unwrap(),
+            MediaType::parse("TEXT/PLAIN").unwrap()
+        );
+        assert_eq!(
+            MediaType::parse("image/svg+xml; charset=utf-8").unwrap(),
+            MediaType::parse("IMAGE/SVG+XML; CHARSET=UTF-8").unwrap()
+        );
+        assert_eq!(
+            MediaType::parse("image/svg+xml; hello=world; charset=utf-8").unwrap(),
+            MediaType::parse("IMAGE/SVG+XML; CHARSET=UTF-8; HELLO=WORLD").unwrap()
         );
     }
 }

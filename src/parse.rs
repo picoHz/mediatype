@@ -105,6 +105,30 @@ impl Indices {
     }
 }
 
+#[cfg(test)]
+fn parse_to_string(s: &str) -> Result<String, ParseError> {
+    use std::fmt::Write;
+
+    let mut out = String::new();
+    let (indices, _) = Indices::parse(s)?;
+
+    write!(out, "{}/{}", &s[indices.ty()], &s[indices.subty()]).unwrap();
+    if let Some(suffix) = indices.suffix() {
+        write!(out, "+{}", &s[suffix]).unwrap();
+    }
+    for param in indices.params() {
+        write!(
+            out,
+            "; {}={}",
+            &s[param[0] as usize..param[1] as usize],
+            &s[param[2] as usize..param[3] as usize]
+        )
+        .unwrap();
+    }
+
+    Ok(out)
+}
+
 fn is_restricted_name(s: &str) -> bool {
     s.len() <= TYPE_NAME_LENGTH_HARD_LIMIT
         && s.starts_with(char::is_alphanumeric)
@@ -172,5 +196,93 @@ fn parse_param(s: &str) -> Result<(Range<usize>, Range<usize>), ParseError> {
         Ok((key_range, value_range))
     } else {
         Err(ParseError::InvalidParams)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parse() {
+        assert_eq!(parse_to_string("text/plain"), Ok("text/plain".into()));
+        assert_eq!(parse_to_string("text/plain;"), Ok("text/plain".into()));
+        assert_eq!(parse_to_string("image/svg+xml"), Ok("image/svg+xml".into()));
+        assert_eq!(
+            parse_to_string("image/svg+xml;"),
+            Ok("image/svg+xml".into())
+        );
+        assert_eq!(
+            parse_to_string("image/svg+xml; charset=utf-8"),
+            Ok("image/svg+xml; charset=utf-8".into())
+        );
+        assert_eq!(
+            parse_to_string("image/svg+xml; charset=utf-8;"),
+            Ok("image/svg+xml; charset=utf-8".into())
+        );
+        assert_eq!(
+            parse_to_string("image/svg+xml    ; charset=utf-8   "),
+            Ok("image/svg+xml; charset=utf-8".into())
+        );
+        assert_eq!(
+            parse_to_string("image/svg+xml; charset=\"utf-8\""),
+            Ok("image/svg+xml; charset=utf-8".into())
+        );
+        assert_eq!(
+            parse_to_string("multipart/form-data ; boundary=--boundary13234"),
+            Ok("multipart/form-data; boundary=--boundary13234".into())
+        );
+
+        let s = "text/plain";
+        let long_str = format!("{};{}", s, " ".repeat(std::u16::MAX as usize - 2 - s.len()));
+        assert_eq!(parse_to_string(&long_str), Ok("text/plain".into()));
+    }
+    #[test]
+    fn parse_error() {
+        assert_eq!(parse_to_string(""), Err(ParseError::InvalidTypeName));
+        assert_eq!(
+            parse_to_string("textplain"),
+            Err(ParseError::InvalidTypeName)
+        );
+        assert_eq!(
+            parse_to_string("text//plain"),
+            Err(ParseError::InvalidSubtypeName)
+        );
+        assert_eq!(
+            parse_to_string(" text/plain"),
+            Err(ParseError::InvalidTypeName)
+        );
+        assert_eq!(
+            parse_to_string("text/plain; charsetutf-8"),
+            Err(ParseError::InvalidParams)
+        );
+        assert_eq!(
+            parse_to_string("text/plain;;"),
+            Err(ParseError::InvalidParams)
+        );
+        assert_eq!(
+            parse_to_string("text/plain;;;"),
+            Err(ParseError::InvalidParams)
+        );
+        assert_eq!(
+            parse_to_string("text/plain; charset=utf-8; charset=utf-8"),
+            Err(ParseError::DuplicatedParamKeys)
+        );
+        assert_eq!(
+            parse_to_string("text/plain; charset=\"utf-8"),
+            Err(ParseError::InvalidParamValue)
+        );
+        assert_eq!(
+            parse_to_string("text/plain; charset==utf-8"),
+            Err(ParseError::InvalidParamValue)
+        );
+        assert_eq!(
+            parse_to_string("text/plain; \r\n charset=utf-8;"),
+            Err(ParseError::InvalidParamKey)
+        );
+
+        let s = "text/plain";
+        let long_str = format!("{};{}", s, " ".repeat(std::u16::MAX as usize - 1 - s.len()));
+        assert_eq!(parse_to_string(&long_str), Err(ParseError::TooLongInput));
     }
 }
