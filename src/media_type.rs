@@ -150,7 +150,7 @@ impl<'a> MediaType<'a> {
     pub fn set_param<'k: 'a, 'v: 'a>(&mut self, key: Name<'k>, value: Value<'v>) -> Option<Value> {
         if let Ok(index) = self
             .params
-            .binary_search_by_key(&Name(key.as_ref()), |(key, _)| *key)
+            .binary_search_by_key(&Name(key.as_str()), |(key, _)| *key)
         {
             Some(mem::replace(&mut self.params.to_mut()[index].1, value))
         } else {

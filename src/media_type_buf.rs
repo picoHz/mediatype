@@ -94,15 +94,15 @@ impl MediaTypeBuf {
         write!(
             s,
             "{}/{}",
-            self.ty().as_ref().to_ascii_lowercase(),
-            self.subty().as_ref().to_ascii_lowercase()
+            self.ty().as_str().to_ascii_lowercase(),
+            self.subty().as_str().to_ascii_lowercase()
         )
         .unwrap();
         if let Some(suffix) = self.suffix() {
-            write!(s, "+{}", suffix.as_ref().to_ascii_lowercase()).unwrap();
+            write!(s, "+{}", suffix.as_str().to_ascii_lowercase()).unwrap();
         }
         for (key, value) in self.params() {
-            write!(s, "; {}={}", key.as_ref().to_ascii_lowercase(), value).unwrap();
+            write!(s, "; {}={}", key.as_str().to_ascii_lowercase(), value).unwrap();
         }
         s.shrink_to_fit();
         Self::from_string(s).unwrap()
