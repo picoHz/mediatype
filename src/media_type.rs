@@ -7,7 +7,7 @@ use std::{
     mem,
 };
 
-/// A referencing MediaType.
+/// A borrowed MediaType.
 ///
 /// ```
 /// use mediatype::{names::*, MediaType, Value};
