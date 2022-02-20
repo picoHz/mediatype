@@ -1,7 +1,6 @@
 use super::{error::*, name::*};
 use std::{num::NonZeroU16, ops::Range};
 
-const INPUT_LENGTH_HARD_LIMIT: usize = std::u16::MAX as usize - 1;
 const TYPE_NAME_LENGTH_HARD_LIMIT: usize = 127;
 
 #[derive(Debug, Clone)]
@@ -9,7 +8,7 @@ pub(crate) struct Indices {
     ty: NonZeroU16,
     subty: NonZeroU16,
     suffix: u16,
-    params: Box<[[u16; 4]]>,
+    params: Box<[[usize; 4]]>,
 }
 
 impl Indices {
@@ -32,15 +31,11 @@ impl Indices {
         }
     }
 
-    pub fn params(&self) -> &[[u16; 4]] {
+    pub fn params(&self) -> &[[usize; 4]] {
         &self.params
     }
 
     pub fn parse(s: &str) -> Result<(Self, usize), ParseError> {
-        if s.len() > INPUT_LENGTH_HARD_LIMIT {
-            return Err(ParseError::TooLongInput);
-        }
-
         let (ty, right) = match s.split_once('/') {
             Some(pair) => pair,
             _ => return Err(ParseError::InvalidTypeName),
@@ -80,9 +75,7 @@ impl Indices {
         let (mut params, params_len) = parse_params(&s[params_start as usize..])?;
         for elem in params.iter_mut() {
             for v in elem.iter_mut() {
-                *v = v
-                    .checked_add(params_start as u16)
-                    .ok_or(ParseError::TooLongInput)?;
+                *v += params_start;
             }
         }
         params.sort_unstable_by_key(|&[start, end, _, _]| Name(&s[start as usize..end as usize]));
@@ -95,21 +88,11 @@ impl Indices {
             }
         }
 
-        let ty = ty.len().try_into().map_err(|_| ParseError::TooLongInput)?;
-        let subty = subty
-            .len()
-            .try_into()
-            .map_err(|_| ParseError::TooLongInput)?;
-        let suffix = suffix
-            .len()
-            .try_into()
-            .map_err(|_| ParseError::TooLongInput)?;
-
         Ok((
             Self {
-                ty: NonZeroU16::new(ty).unwrap(),
-                subty: NonZeroU16::new(subty).unwrap(),
-                suffix,
+                ty: NonZeroU16::new(ty.len() as _).unwrap(),
+                subty: NonZeroU16::new(subty.len() as _).unwrap(),
+                suffix: suffix.len() as _,
                 params: params.into_boxed_slice(),
             },
             params_start + params_len,
@@ -159,7 +142,7 @@ fn is_restricted_char(c: char) -> bool {
         )
 }
 
-fn parse_params(s: &str) -> Result<(Vec<[u16; 4]>, usize), ParseError> {
+fn parse_params(s: &str) -> Result<(Vec<[usize; 4]>, usize), ParseError> {
     let mut vec = Vec::new();
     let mut offset = 0;
     let mut len = 0;
@@ -171,18 +154,10 @@ fn parse_params(s: &str) -> Result<(Vec<[u16; 4]>, usize), ParseError> {
         if !empty {
             let (key, value) = parse_param(param)?;
             vec.push([
-                (offset + key.start)
-                    .try_into()
-                    .map_err(|_| ParseError::TooLongInput)?,
-                (offset + key.end)
-                    .try_into()
-                    .map_err(|_| ParseError::TooLongInput)?,
-                (offset + value.start)
-                    .try_into()
-                    .map_err(|_| ParseError::TooLongInput)?,
-                (offset + value.end)
-                    .try_into()
-                    .map_err(|_| ParseError::TooLongInput)?,
+                offset + key.start,
+                offset + key.end,
+                offset + value.start,
+                offset + value.end,
             ]);
             len = offset + value.end;
         }
@@ -301,8 +276,7 @@ mod tests {
             Err(ParseError::InvalidParamKey)
         );
 
-        let s = "text/plain";
-        let long_str = format!("{};{}", s, " ".repeat(std::u16::MAX as usize - 1 - s.len()));
-        assert_eq!(parse_to_string(&long_str), Err(ParseError::TooLongInput));
+        let long_str = format!("{}/plain", "t".repeat(std::u16::MAX as usize));
+        assert_eq!(parse_to_string(&long_str), Err(ParseError::InvalidTypeName));
     }
 }

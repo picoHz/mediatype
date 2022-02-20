@@ -4,7 +4,6 @@ use std::{error, fmt};
 #[non_exhaustive]
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
 pub enum ParseError {
-    TooLongInput,
     InvalidTypeName,
     InvalidSubtypeName,
     InvalidSuffix,
@@ -17,7 +16,6 @@ pub enum ParseError {
 impl fmt::Display for ParseError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let msg = match self {
-            Self::TooLongInput => "Too long input",
             Self::InvalidTypeName => "Invalid type name",
             Self::InvalidSubtypeName => "Invalid subtype name",
             Self::InvalidSuffix => "Invalid suffix",
