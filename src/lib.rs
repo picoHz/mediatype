@@ -1,3 +1,5 @@
+//! # About
+//!
 //! This crate provides two MediaType structs: [`MediaType`] and [`MediaTypeBuf`].
 //!
 //! - [`MediaType`] does not copy data during parsing
@@ -20,6 +22,27 @@
 //!     ("text", _) => println!("structured text"),
 //!     _ => println!("not text"),
 //! }
+//! ```
+//! 
+//! # Case sensitivity
+//!
+//! [`MediaType`] and [`MediaTypeBuf`] preserve the original string's letter case;
+//! values returned by accessor methods are not normalized.
+//! Comparisons between [`MediaType`] and/or [`MediaTypeBuf`] are case-insensitive
+//! except parameter values.
+//!
+//! [`MadiaType`]: ./struct.MediaType.html
+//! [`MediaTypeBuf`]: ./struct.MediaTypeBuf.html
+//!
+//!  ```
+//! # use mediatype::{names::*, MediaType, MediaTypeBuf};
+//! let lower: MediaTypeBuf = "text/plain; charset=UTF-8".parse().unwrap();
+//! let upper: MediaTypeBuf = "TEXT/PLAIN; CHARSET=UTF-8".parse().unwrap();
+//!
+//! assert_eq!(lower, upper);
+//! assert_eq!(lower.to_string(), "text/plain; charset=UTF-8");
+//! assert_eq!(upper.to_string(), "TEXT/PLAIN; CHARSET=UTF-8");
+//! assert!(lower.ty() != upper.ty()); // "text" == "TEXT"
 //! ```
 
 #![forbid(unsafe_code)]

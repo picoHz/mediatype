@@ -6,7 +6,7 @@ use std::{
     hash::{Hash, Hasher},
 };
 
-/// A parsed MediaType.
+/// A referencing MediaType.
 ///
 /// ```
 /// use mediatype::{names::*, MediaType, Value};
