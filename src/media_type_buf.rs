@@ -14,6 +14,30 @@ pub struct MediaTypeBuf {
 }
 
 impl MediaTypeBuf {
+    /// Constructs a `MediaTypeBuf` from a top-level type and a subtype.
+    pub fn new(ty: Name, subty: Name) -> Self {
+        Self::from_string(format!("{}/{}", ty, subty)).unwrap()
+    }
+
+    /// Constructs a `MediaTypeBuf` with an optional suffix and parameters.
+    pub fn from_parts(
+        ty: Name,
+        subty: Name,
+        suffix: Option<Name>,
+        params: &[(Name, Value)],
+    ) -> Result<Self, ParseError> {
+        use std::fmt::Write;
+        let mut s = String::new();
+        write!(s, "{}/{}", ty, subty).unwrap();
+        if let Some(suffix) = suffix {
+            write!(s, "+{}", suffix).unwrap();
+        }
+        for (key, value) in params {
+            write!(s, "; {}={}", key, value).unwrap();
+        }
+        Self::from_string(s)
+    }
+
     /// Constructs a `MediaTypeBuf` from [`String`].
     ///
     /// Unlike [`FromStr::from_str`], this function takes the ownership of [`String`]
@@ -217,6 +241,16 @@ impl fmt::Display for MediaTypeBuf {
 mod tests {
     use super::*;
     use crate::{names::*, values::*};
+
+    #[test]
+    fn from_parts() {
+        assert_eq!(
+            MediaTypeBuf::from_parts(IMAGE, SVG, Some(XML), &[(CHARSET, UTF_8)])
+                .unwrap()
+                .to_string(),
+            "image/svg+xml; charset=UTF-8"
+        );
+    }
 
     #[test]
     fn get_param() {
