@@ -170,6 +170,13 @@ impl<'a> MediaType<'a> {
             .ok()
             .map(|index| self.params.to_mut().remove(index).1)
     }
+
+    /// Removes all parameters.
+    pub fn clear_params(&mut self) {
+        if !self.params.is_empty() {
+            self.params.to_mut().clear();
+        }
+    }
 }
 
 impl<'a> fmt::Display for MediaType<'a> {
@@ -323,6 +330,13 @@ mod tests {
         );
         assert_eq!(media_type.remove_param(Name::new("hello").unwrap()), None);
         assert_eq!(media_type.to_string(), "image/svg+xml; charset=UTF-8");
+    }
+
+    #[test]
+    fn clear_params() {
+        let mut media_type = MediaType::parse("image/svg+xml; charset=UTF-8; HELLO=WORLD").unwrap();
+        media_type.clear_params();
+        assert_eq!(media_type.to_string(), "image/svg+xml");
     }
 
     #[test]
