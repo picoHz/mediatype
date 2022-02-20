@@ -1,13 +1,13 @@
 use super::{error::*, name::*};
-use std::{num::NonZeroU16, ops::Range};
+use std::{num::NonZeroU8, ops::Range};
 
 const TYPE_NAME_LENGTH_HARD_LIMIT: usize = 127;
 
 #[derive(Debug, Clone)]
 pub(crate) struct Indices {
-    ty: NonZeroU16,
-    subty: NonZeroU16,
-    suffix: u16,
+    ty: NonZeroU8,
+    subty: NonZeroU8,
+    suffix: u8,
     params: Box<[[usize; 4]]>,
 }
 
@@ -17,15 +17,16 @@ impl Indices {
     }
 
     pub const fn subty(&self) -> Range<usize> {
-        (self.ty.get() + 1) as _..(self.ty.get() + 1 + self.subty.get()) as _
+        let start = self.ty.get() as usize + 1;
+        let end = start + self.subty.get() as usize;
+        start..end
     }
 
     pub const fn suffix(&self) -> Option<Range<usize>> {
-        if self.suffix > 0 {
-            Some(
-                (self.ty.get() + 1 + self.subty.get() + 1) as _
-                    ..(self.ty.get() + 1 + self.subty.get() + 1 + self.suffix) as _,
-            )
+        let start = self.ty.get() as usize + 1 + self.subty.get() as usize + 1;
+        let end = start + self.suffix as usize;
+        if start < end {
+            Some(start..end)
         } else {
             None
         }
@@ -90,8 +91,8 @@ impl Indices {
 
         Ok((
             Self {
-                ty: NonZeroU16::new(ty.len() as _).unwrap(),
-                subty: NonZeroU16::new(subty.len() as _).unwrap(),
+                ty: NonZeroU8::new(ty.len() as _).unwrap(),
+                subty: NonZeroU8::new(subty.len() as _).unwrap(),
                 suffix: suffix.len() as _,
                 params: params.into_boxed_slice(),
             },
