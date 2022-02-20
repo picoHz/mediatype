@@ -7,6 +7,19 @@ use std::{
 };
 
 /// A parsed MediaType.
+///
+/// ```
+/// use mediatype::{names::*, MediaType, Value};
+///
+/// let boundary = Value::new("dyEV84n7XNJ").unwrap();
+/// let mut multipart = MediaType::new(MULTIPART, FORM_DATA);
+/// multipart.set_param(&BOUNDARY, &boundary);
+///
+/// assert_eq!(
+///     multipart.to_string(),
+///     "multipart/form-data; boundary=dyEV84n7XNJ"
+/// );
+/// ```
 #[derive(Debug, Clone)]
 pub struct MediaType<'a> {
     ty: Name<'a>,
