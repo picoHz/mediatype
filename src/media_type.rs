@@ -194,7 +194,7 @@ impl<'a> fmt::Display for MediaType<'a> {
 
 impl<'a> From<&'a MediaTypeBuf> for MediaType<'a> {
     fn from(t: &'a MediaTypeBuf) -> Self {
-        Self::parse(t.as_str()).unwrap()
+        t.to_ref()
     }
 }
 

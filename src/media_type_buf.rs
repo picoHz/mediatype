@@ -136,6 +136,11 @@ impl MediaTypeBuf {
         s.shrink_to_fit();
         Self::from_string(s).unwrap()
     }
+
+    /// Constructs a `MediaType` from `self`.
+    pub fn to_ref(&self) -> MediaType {
+        MediaType::parse(self.as_str()).unwrap()
+    }
 }
 
 impl FromStr for MediaTypeBuf {
