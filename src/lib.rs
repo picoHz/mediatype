@@ -28,7 +28,7 @@
 //!
 //! [`MediaType`] and [`MediaTypeBuf`] preserve the original string's letter case;
 //! values returned by accessor methods are not normalized.
-//! Comparisons between [`MediaType`] and/or [`MediaTypeBuf`] are case-insensitive
+//! Comparisons for [`MediaType`] and [`MediaTypeBuf`] are case-insensitive
 //! except parameter values.
 //!
 //! [`MadiaType`]: ./struct.MediaType.html
