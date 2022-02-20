@@ -1,4 +1,4 @@
-use super::{error::*, name::*, params::*, parse::*, value::*};
+use super::{error::*, media_type_buf::*, name::*, params::*, parse::*, value::*};
 use std::{
     borrow::Cow,
     cmp::Ordering,
@@ -189,6 +189,12 @@ impl<'a> fmt::Display for MediaType<'a> {
             write!(f, "; {}={}", key, value)?;
         }
         Ok(())
+    }
+}
+
+impl<'a> From<&'a MediaTypeBuf> for MediaType<'a> {
+    fn from(t: &'a MediaTypeBuf) -> Self {
+        Self::parse(t.as_str()).unwrap()
     }
 }
 
