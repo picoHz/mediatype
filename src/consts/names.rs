@@ -1,4 +1,8 @@
 //! Predefined names.
+//!
+//! # Sources
+//! - <https://en.wikipedia.org/wiki/Media_type>
+//! - <https://www.iana.org/assignments/media-types/media-types.xhtml>
 
 include!(concat!(env!("OUT_DIR"), "/names_generated.rs"));
 
