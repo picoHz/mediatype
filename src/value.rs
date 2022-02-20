@@ -21,6 +21,11 @@ impl<'a> Value<'a> {
             None
         }
     }
+
+    /// Returns the underlying string.
+    pub fn as_str(&self) -> &str {
+        self.0
+    }
 }
 
 impl<'a> fmt::Display for Value<'a> {
