@@ -30,7 +30,7 @@ enum ParamsSource<'a> {
 }
 
 impl<'a> Iterator for Params<'a> {
-    type Item = (&'a str, &'a str);
+    type Item = (Name<'a>, Value<'a>);
 
     fn next(&mut self) -> Option<Self::Item> {
         let index = self.index;
@@ -40,7 +40,7 @@ impl<'a> Iterator for Params<'a> {
                     None
                 } else {
                     self.index += 1;
-                    Some((s[index].0.as_ref(), s[index].1.as_ref()))
+                    Some((s[index].0, s[index].1))
                 }
             }
             ParamsSource::Indices(s, i) => {
@@ -50,8 +50,8 @@ impl<'a> Iterator for Params<'a> {
                     self.index += 1;
                     let param = i.params()[index];
                     Some((
-                        &s[param[0] as usize..param[1] as usize],
-                        &s[param[2] as usize..param[3] as usize],
+                        Name(&s[param[0] as usize..param[1] as usize]),
+                        Value(&s[param[2] as usize..param[3] as usize]),
                     ))
                 }
             }

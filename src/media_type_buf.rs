@@ -1,4 +1,4 @@
-use super::{error::*, media_type::*, name::*, params::*, parse::*};
+use super::{error::*, media_type::*, name::*, params::*, parse::*, value::*};
 use std::{
     cmp::Ordering,
     fmt,
@@ -31,18 +31,18 @@ impl MediaTypeBuf {
     }
 
     /// Returns the top-level type.
-    pub fn ty(&self) -> &str {
-        &self.data[self.indices.ty()]
+    pub fn ty(&self) -> Name {
+        Name(&self.data[self.indices.ty()])
     }
 
     /// Returns the subtype.
-    pub fn subty(&self) -> &str {
-        &self.data[self.indices.subty()]
+    pub fn subty(&self) -> Name {
+        Name(&self.data[self.indices.subty()])
     }
 
     /// Returns the suffix.
-    pub fn suffix(&self) -> Option<&str> {
-        self.indices.suffix().map(|range| &self.data[range])
+    pub fn suffix(&self) -> Option<Name> {
+        self.indices.suffix().map(|range| Name(&self.data[range]))
     }
 
     /// Returns the string representation without parameters.
@@ -66,14 +66,14 @@ impl MediaTypeBuf {
     /// Gets the parameter value by its key.
     ///
     /// The key is case-insensitive.
-    pub fn get_param(&self, key: Name) -> Option<&str> {
+    pub fn get_param(&self, key: Name) -> Option<Value> {
         let params = self.indices.params();
         params
             .binary_search_by_key(&key, |&[start, end, _, _]| {
                 Name(&self.data[start as usize..end as usize])
             })
             .ok()
-            .map(|index| &self.data[params[index][2] as usize..params[index][3] as usize])
+            .map(|index| Value(&self.data[params[index][2] as usize..params[index][3] as usize]))
     }
 
     /// Returns the canonicalized `MediaTypeBuf`.
@@ -94,34 +94,18 @@ impl MediaTypeBuf {
         write!(
             s,
             "{}/{}",
-            self.ty().to_ascii_lowercase(),
-            self.subty().to_ascii_lowercase()
+            self.ty().as_ref().to_ascii_lowercase(),
+            self.subty().as_ref().to_ascii_lowercase()
         )
         .unwrap();
         if let Some(suffix) = self.suffix() {
-            write!(s, "+{}", suffix.to_ascii_lowercase()).unwrap();
+            write!(s, "+{}", suffix.as_ref().to_ascii_lowercase()).unwrap();
         }
         for (key, value) in self.params() {
-            write!(s, "; {}={}", key.to_ascii_lowercase(), value).unwrap();
+            write!(s, "; {}={}", key.as_ref().to_ascii_lowercase(), value).unwrap();
         }
         s.shrink_to_fit();
         Self::from_string(s).unwrap()
-    }
-
-    pub(crate) fn ty_name(&self) -> Name {
-        Name(self.ty())
-    }
-
-    pub(crate) fn subty_name(&self) -> Name {
-        Name(self.subty())
-    }
-
-    pub(crate) fn suffix_name(&self) -> Option<Name> {
-        self.suffix().map(Name)
-    }
-
-    pub(crate) fn params_name(&self) -> impl Iterator<Item = (Name, Name)> {
-        self.params().map(|(key, value)| (Name(key), Name(value)))
     }
 }
 
@@ -145,10 +129,10 @@ impl AsRef<str> for MediaTypeBuf {
 
 impl PartialEq for MediaTypeBuf {
     fn eq(&self, other: &Self) -> bool {
-        self.ty_name() == other.ty_name()
-            && self.subty_name() == other.subty_name()
-            && self.suffix_name() == other.suffix_name()
-            && self.params_name().eq(other.params_name())
+        self.ty() == other.ty()
+            && self.subty() == other.subty()
+            && self.suffix() == other.suffix()
+            && self.params().eq(other.params())
     }
 }
 
@@ -162,28 +146,28 @@ impl PartialOrd for MediaTypeBuf {
 
 impl Ord for MediaTypeBuf {
     fn cmp(&self, other: &Self) -> Ordering {
-        match self.ty_name().cmp(&other.ty_name()) {
+        match self.ty().cmp(&other.ty()) {
             Ordering::Equal => (),
             ne => return ne,
         }
-        match self.subty_name().cmp(&other.subty_name()) {
+        match self.subty().cmp(&other.subty()) {
             Ordering::Equal => (),
             ne => return ne,
         }
-        match self.suffix_name().cmp(&other.suffix_name()) {
+        match self.suffix().cmp(&other.suffix()) {
             Ordering::Equal => (),
             ne => return ne,
         }
-        self.params_name().cmp(other.params_name())
+        self.params().cmp(other.params())
     }
 }
 
 impl Hash for MediaTypeBuf {
     fn hash<H: Hasher>(&self, state: &mut H) {
-        self.ty_name().hash(state);
-        self.subty_name().hash(state);
-        self.suffix_name().hash(state);
-        for param in self.params_name() {
+        self.ty().hash(state);
+        self.subty().hash(state);
+        self.suffix().hash(state);
+        for param in self.params() {
             param.hash(state);
         }
     }
@@ -191,28 +175,28 @@ impl Hash for MediaTypeBuf {
 
 impl PartialEq<MediaType<'_>> for MediaTypeBuf {
     fn eq(&self, other: &MediaType) -> bool {
-        self.ty_name() == other.ty_name()
-            && self.subty_name() == other.subty_name()
-            && self.suffix_name() == other.suffix_name()
-            && self.params_name().eq(other.params_name())
+        self.ty() == other.ty()
+            && self.subty() == other.subty()
+            && self.suffix() == other.suffix()
+            && self.params().eq(other.params())
     }
 }
 
 impl PartialOrd<MediaType<'_>> for MediaTypeBuf {
     fn partial_cmp(&self, other: &MediaType) -> Option<Ordering> {
-        match self.ty_name().partial_cmp(&other.ty_name()) {
+        match self.ty().partial_cmp(&other.ty()) {
             Some(Ordering::Equal) => (),
             ne => return ne,
         }
-        match self.subty_name().partial_cmp(&other.subty_name()) {
+        match self.subty().partial_cmp(&other.subty()) {
             Some(Ordering::Equal) => (),
             ne => return ne,
         }
-        match self.suffix_name().partial_cmp(&other.suffix_name()) {
+        match self.suffix().partial_cmp(&other.suffix()) {
             Some(Ordering::Equal) => (),
             ne => return ne,
         }
-        self.params_name().partial_cmp(other.params_name())
+        self.params().partial_cmp(other.params())
     }
 }
 
@@ -232,7 +216,7 @@ impl fmt::Display for MediaTypeBuf {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::names::*;
+    use crate::{names::*, values::*};
 
     #[test]
     fn get_param() {
@@ -246,13 +230,13 @@ mod tests {
             MediaTypeBuf::from_str("image/svg+xml; charset=UTF-8")
                 .unwrap()
                 .get_param(CHARSET),
-            Some("UTF-8")
+            Some(UTF_8)
         );
         assert_eq!(
             MediaTypeBuf::from_str("image/svg+xml; charset=UTF-8; HELLO=WORLD")
                 .unwrap()
                 .get_param(Name::new("hello").unwrap()),
-            Some("WORLD")
+            Some(Value::new("WORLD").unwrap())
         );
     }
 
@@ -295,11 +279,11 @@ mod tests {
         );
         assert_eq!(
             MediaTypeBuf::from_str("image/svg+xml; charset=UTF-8").unwrap(),
-            MediaTypeBuf::from_str("IMAGE/SVG+XML; CHARSET=utf-8").unwrap()
+            MediaTypeBuf::from_str("IMAGE/SVG+XML; CHARSET=UTF-8").unwrap()
         );
         assert_eq!(
-            MediaTypeBuf::from_str("image/svg+xml; hello=world; charset=UTF-8").unwrap(),
-            MediaTypeBuf::from_str("IMAGE/SVG+XML; CHARSET=utf-8; HELLO=WORLD").unwrap()
+            MediaTypeBuf::from_str("image/svg+xml; hello=WORLD; charset=UTF-8").unwrap(),
+            MediaTypeBuf::from_str("IMAGE/SVG+XML; CHARSET=UTF-8; HELLO=WORLD").unwrap()
         );
     }
 }

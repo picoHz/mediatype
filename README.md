@@ -26,10 +26,4 @@ const TEXT_PLAIN: MediaType = MediaType::new(TEXT, PLAIN);
 let text_plain: MediaTypeBuf = "text/plain".parse().unwrap();
 
 assert_eq!(text_plain, TEXT_PLAIN);
-
-match (text_plain.ty(), text_plain.subty()) {
-    ("text", "plain") => println!("plain text!"),
-    ("text", _) => println!("structured text"),
-    _ => println!("not text"),
-}
 ```

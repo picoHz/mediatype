@@ -86,8 +86,20 @@ impl<'a> PartialEq<str> for Name<'a> {
     }
 }
 
+impl<'a> PartialEq<&str> for Name<'a> {
+    fn eq(&self, other: &&str) -> bool {
+        self.0.eq_ignore_ascii_case(other)
+    }
+}
+
 impl<'a> PartialOrd<str> for Name<'a> {
     fn partial_cmp(&self, other: &str) -> Option<Ordering> {
+        Some(self.0.cmp(other))
+    }
+}
+
+impl<'a> PartialOrd<&str> for Name<'a> {
+    fn partial_cmp(&self, other: &&str) -> Option<Ordering> {
         Some(self.0.cmp(other))
     }
 }

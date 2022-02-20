@@ -4,6 +4,7 @@ use std::{
     cmp::Ordering,
     fmt,
     hash::{Hash, Hasher},
+    mem,
 };
 
 /// A referencing MediaType.
@@ -95,18 +96,18 @@ impl<'a> MediaType<'a> {
     }
 
     /// Returns the top-level type.
-    pub const fn ty(&self) -> &'a str {
-        self.ty.0
+    pub const fn ty(&self) -> Name {
+        self.ty
     }
 
     /// Returns the subtype.
-    pub const fn subty(&self) -> &'a str {
-        self.subty.0
+    pub const fn subty(&self) -> Name {
+        self.subty
     }
 
     /// Returns the suffix.
-    pub fn suffix(&self) -> Option<&str> {
-        self.suffix.map(|x| x.0)
+    pub const fn suffix(&self) -> Option<Name> {
+        self.suffix
     }
 
     /// Sets the top-level type.
@@ -134,11 +135,11 @@ impl<'a> MediaType<'a> {
     /// Gets the parameter value by its key.
     ///
     /// The key is case-insensitive.
-    pub fn get_param(&self, key: Name) -> Option<&str> {
+    pub fn get_param(&self, key: Name) -> Option<Value> {
         self.params
             .binary_search_by_key(&key, |(key, _)| *key)
             .ok()
-            .map(|index| self.params[index].1.as_ref())
+            .map(|index| self.params[index].1)
     }
 
     /// Sets a parameter value.
@@ -146,12 +147,12 @@ impl<'a> MediaType<'a> {
     /// If the parameter is already set, replaces it with a new value and
     /// returns the old value.
     /// The key is case-insensitive.
-    pub fn set_param<'k: 'a, 'v: 'a>(&mut self, key: Name<'k>, value: Value<'v>) -> Option<&str> {
+    pub fn set_param<'k: 'a, 'v: 'a>(&mut self, key: Name<'k>, value: Value<'v>) -> Option<Value> {
         if let Ok(index) = self
             .params
             .binary_search_by_key(&Name(key.as_ref()), |(key, _)| *key)
         {
-            Some(std::mem::replace(&mut self.params.to_mut()[index].1, value).0)
+            Some(mem::replace(&mut self.params.to_mut()[index].1, value))
         } else {
             let params = self.params.to_mut();
             params.push((key, value));
@@ -163,27 +164,11 @@ impl<'a> MediaType<'a> {
     /// Removes and returns a parameter value by its key.
     ///
     /// The key is case-insensitive.
-    pub fn remove_param(&mut self, key: Name) -> Option<&str> {
+    pub fn remove_param(&mut self, key: Name) -> Option<Value> {
         self.params
             .binary_search_by_key(&key, |(key, _)| *key)
             .ok()
-            .map(|index| self.params.to_mut().remove(index).1 .0)
-    }
-
-    pub(crate) fn ty_name(&self) -> Name<'a> {
-        self.ty
-    }
-
-    pub(crate) fn subty_name(&self) -> Name<'a> {
-        self.subty
-    }
-
-    pub(crate) fn suffix_name(&self) -> Option<Name<'a>> {
-        self.suffix
-    }
-
-    pub(crate) fn params_name(&self) -> impl Iterator<Item = (Name, Name)> {
-        self.params().map(|(key, value)| (Name(key), Name(value)))
+            .map(|index| self.params.to_mut().remove(index).1)
     }
 }
 
@@ -202,10 +187,10 @@ impl<'a> fmt::Display for MediaType<'a> {
 
 impl<'a> PartialEq for MediaType<'a> {
     fn eq(&self, other: &MediaType) -> bool {
-        self.ty_name() == other.ty_name()
-            && self.subty_name() == other.subty_name()
-            && self.suffix_name() == other.suffix_name()
-            && self.params_name().eq(other.params_name())
+        self.ty() == other.ty()
+            && self.subty() == other.subty()
+            && self.suffix() == other.suffix()
+            && self.params().eq(other.params())
     }
 }
 
@@ -219,28 +204,28 @@ impl<'a> PartialOrd for MediaType<'a> {
 
 impl<'a> Ord for MediaType<'a> {
     fn cmp(&self, other: &Self) -> Ordering {
-        match self.ty_name().cmp(&other.ty_name()) {
+        match self.ty().cmp(&other.ty()) {
             Ordering::Equal => (),
             ne => return ne,
         }
-        match self.subty_name().cmp(&other.subty_name()) {
+        match self.subty().cmp(&other.subty()) {
             Ordering::Equal => (),
             ne => return ne,
         }
-        match self.suffix_name().cmp(&other.suffix_name()) {
+        match self.suffix().cmp(&other.suffix()) {
             Ordering::Equal => (),
             ne => return ne,
         }
-        self.params_name().cmp(other.params_name())
+        self.params().cmp(other.params())
     }
 }
 
 impl<'a> Hash for MediaType<'a> {
     fn hash<H: Hasher>(&self, state: &mut H) {
-        self.ty_name().hash(state);
-        self.subty_name().hash(state);
-        self.suffix_name().hash(state);
-        for param in self.params_name() {
+        self.ty().hash(state);
+        self.subty().hash(state);
+        self.suffix().hash(state);
+        for param in self.params() {
             param.hash(state);
         }
     }
@@ -296,13 +281,13 @@ mod tests {
         assert_eq!(MediaType::new(TEXT, PLAIN).get_param(CHARSET), None);
         assert_eq!(
             MediaType::from_parts(TEXT, PLAIN, None, Some(&[(CHARSET, UTF_8)])).get_param(CHARSET),
-            Some("UTF-8")
+            Some(UTF_8)
         );
         assert_eq!(
             MediaType::parse("image/svg+xml; charset=UTF-8; HELLO=WORLD")
                 .unwrap()
                 .get_param(Name::new("hello").unwrap()),
-            Some("WORLD")
+            Some(Value::new("WORLD").unwrap())
         );
     }
 
@@ -310,7 +295,7 @@ mod tests {
     fn set_param() {
         let mut media_type = MediaType::from_parts(TEXT, PLAIN, None, Some(&[(CHARSET, UTF_8)]));
         let lower_utf8 = Value::new("utf-8").unwrap();
-        assert_eq!(media_type.set_param(CHARSET, lower_utf8), Some("UTF-8"));
+        assert_eq!(media_type.set_param(CHARSET, lower_utf8), Some(UTF_8));
         assert_eq!(media_type.to_string(), "text/plain; charset=utf-8");
 
         let alice = Name::new("ALICE").unwrap();
@@ -327,14 +312,14 @@ mod tests {
         assert_eq!(MediaType::new(TEXT, PLAIN).remove_param(CHARSET), None);
 
         let mut media_type = MediaType::from_parts(TEXT, PLAIN, None, Some(&[(CHARSET, UTF_8)]));
-        assert_eq!(media_type.remove_param(CHARSET), Some("UTF-8"));
+        assert_eq!(media_type.remove_param(CHARSET), Some(UTF_8));
         assert_eq!(media_type.remove_param(CHARSET), None);
         assert_eq!(media_type.to_string(), "text/plain");
 
         let mut media_type = MediaType::parse("image/svg+xml; charset=UTF-8; HELLO=WORLD").unwrap();
         assert_eq!(
             media_type.remove_param(Name::new("hello").unwrap()),
-            Some("WORLD")
+            Some(Value::new("WORLD").unwrap())
         );
         assert_eq!(media_type.remove_param(Name::new("hello").unwrap()), None);
         assert_eq!(media_type.to_string(), "image/svg+xml; charset=UTF-8");
@@ -348,11 +333,11 @@ mod tests {
         );
         assert_eq!(
             MediaType::parse("image/svg+xml; charset=UTF-8").unwrap(),
-            MediaType::parse("IMAGE/SVG+XML; CHARSET=utf-8").unwrap()
+            MediaType::parse("IMAGE/SVG+XML; CHARSET=UTF-8").unwrap()
         );
         assert_eq!(
-            MediaType::parse("image/svg+xml; hello=world; charset=UTF-8").unwrap(),
-            MediaType::parse("IMAGE/SVG+XML; CHARSET=utf-8; HELLO=WORLD").unwrap()
+            MediaType::parse("image/svg+xml; hello=WORLD; charset=UTF-8").unwrap(),
+            MediaType::parse("IMAGE/SVG+XML; CHARSET=UTF-8; HELLO=WORLD").unwrap()
         );
     }
 }

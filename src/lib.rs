@@ -16,18 +16,11 @@
 //! let text_plain: MediaTypeBuf = "text/plain".parse().unwrap();
 //!
 //! assert_eq!(text_plain, TEXT_PLAIN);
-//!
-//! match (text_plain.ty(), text_plain.subty()) {
-//!     ("text", "plain") => println!("plain text!"),
-//!     ("text", _) => println!("structured text"),
-//!     _ => println!("not text"),
-//! }
 //! ```
 //! 
 //! # Case sensitivity
 //!
-//! [`MediaType`] and [`MediaTypeBuf`] preserve the original string's letter case;
-//! values returned by accessor methods are not normalized.
+//! [`MediaType`] and [`MediaTypeBuf`] preserve the original string's letter case.
 //! Comparisons for [`MediaType`] and [`MediaTypeBuf`] are case-insensitive
 //! except parameter values.
 //!
@@ -42,7 +35,6 @@
 //! assert_eq!(lower, upper);
 //! assert_eq!(lower.to_string(), "text/plain; charset=UTF-8");
 //! assert_eq!(upper.to_string(), "TEXT/PLAIN; CHARSET=UTF-8");
-//! assert!(lower.ty() != upper.ty()); // "text" == "TEXT"
 //! ```
 
 #![forbid(unsafe_code)]
