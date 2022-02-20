@@ -80,6 +80,11 @@ impl MediaTypeBuf {
         self.data.split(';').next().unwrap()
     }
 
+    /// Returns the underlying string.
+    pub fn as_str(&self) -> &str {
+        &self.data
+    }
+
     /// Returns an iterator over the parameters.
     ///
     /// The parameters are alphabetically sorted by their keys.
