@@ -1,8 +1,6 @@
 use super::{error::*, name::*};
 use std::{num::NonZeroU8, ops::Range};
 
-const TYPE_NAME_LENGTH_HARD_LIMIT: usize = 127;
-
 #[derive(Debug, Clone)]
 pub(crate) struct Indices {
     ty: NonZeroU8,
@@ -37,7 +35,10 @@ impl Indices {
     }
 
     pub fn parse(s: &str) -> Result<(Self, usize), ParseError> {
-        let (ty, right) = match s.split_once('/') {
+        // ty.len() + '/' + subty.len() + '+' + suffix.len()
+        const MAX_ESSENCE_LENGTH: usize = Name::MAX_LENGTH * 3 + 2;
+
+        let (ty, right) = match s[..MAX_ESSENCE_LENGTH.min(s.len())].split_once('/') {
             Some(pair) => pair,
             _ => return Err(ParseError::InvalidTypeName),
         };
@@ -126,9 +127,7 @@ fn parse_to_string(s: &str) -> Result<String, ParseError> {
 }
 
 pub fn is_restricted_name(s: &str) -> bool {
-    s.len() <= TYPE_NAME_LENGTH_HARD_LIMIT
-        && s.starts_with(char::is_alphanumeric)
-        && is_restricted_str(s)
+    s.len() <= Name::MAX_LENGTH && s.starts_with(char::is_alphanumeric) && is_restricted_str(s)
 }
 
 pub fn is_restricted_str(s: &str) -> bool {
@@ -232,7 +231,12 @@ mod tests {
         let s = "text/plain";
         let long_str = format!("{};{}", s, " ".repeat(std::u16::MAX as usize - 2 - s.len()));
         assert_eq!(parse_to_string(&long_str), Ok("text/plain".into()));
+
+        let long_name = "a".repeat(Name::MAX_LENGTH);
+        let long_str = format!("{}/{}+{}", long_name, long_name, long_name);
+        assert_eq!(parse_to_string(&long_str), Ok(long_str));
     }
+
     #[test]
     fn parse_error() {
         assert_eq!(parse_to_string(""), Err(ParseError::InvalidTypeName));
