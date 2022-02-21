@@ -31,6 +31,9 @@ impl<'a> Name<'a> {
     pub fn as_str(&self) -> &str {
         self.0
     }
+
+    /// The maximum byte length of a name.
+    pub const MAX_LENGTH: usize = 127;
 }
 
 impl<'a> fmt::Display for Name<'a> {
