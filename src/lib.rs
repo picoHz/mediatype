@@ -32,9 +32,11 @@
 //! let lower: MediaTypeBuf = "text/plain; charset=UTF-8".parse().unwrap();
 //! let upper: MediaTypeBuf = "TEXT/PLAIN; CHARSET=UTF-8".parse().unwrap();
 //!
+//! assert_eq!(lower.as_str(), "text/plain; charset=UTF-8");
+//! assert_eq!(upper.as_str(), "TEXT/PLAIN; CHARSET=UTF-8");
 //! assert_eq!(lower, upper);
-//! assert_eq!(lower.to_string(), "text/plain; charset=UTF-8");
-//! assert_eq!(upper.to_string(), "TEXT/PLAIN; CHARSET=UTF-8");
+//! assert_eq!(lower.ty(), "TEXT");
+//! assert_eq!(upper.subty(), "plain");
 //! ```
 
 #![forbid(unsafe_code)]

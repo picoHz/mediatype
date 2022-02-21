@@ -93,8 +93,6 @@ impl MediaTypeBuf {
     }
 
     /// Gets the parameter value by its key.
-    ///
-    /// The key is case-insensitive.
     pub fn get_param(&self, key: Name) -> Option<Value> {
         let params = self.indices.params();
         params

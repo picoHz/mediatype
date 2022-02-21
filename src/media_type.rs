@@ -74,7 +74,7 @@ impl<'a> MediaType<'a> {
         }
     }
 
-    /// Constructs a `MediaType` from `str`.
+    /// Constructs a `MediaType` from `str` without copying the string.
     pub fn parse<'s: 'a>(s: &'s str) -> Result<Self, ParseError> {
         let (indices, _) = Indices::parse(s)?;
         let params = indices
@@ -133,8 +133,6 @@ impl<'a> MediaType<'a> {
     }
 
     /// Gets the parameter value by its key.
-    ///
-    /// The key is case-insensitive.
     pub fn get_param(&self, key: Name) -> Option<Value> {
         self.params
             .binary_search_by_key(&key, |(key, _)| *key)
@@ -146,7 +144,6 @@ impl<'a> MediaType<'a> {
     ///
     /// If the parameter is already set, replaces it with a new value and
     /// returns the old value.
-    /// The key is case-insensitive.
     pub fn set_param<'k: 'a, 'v: 'a>(&mut self, key: Name<'k>, value: Value<'v>) -> Option<Value> {
         if let Ok(index) = self
             .params
@@ -162,8 +159,6 @@ impl<'a> MediaType<'a> {
     }
 
     /// Removes and returns a parameter value by its key.
-    ///
-    /// The key is case-insensitive.
     pub fn remove_param(&mut self, key: Name) -> Option<Value> {
         self.params
             .binary_search_by_key(&key, |(key, _)| *key)
