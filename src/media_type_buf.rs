@@ -89,7 +89,7 @@ impl MediaTypeBuf {
     ///
     /// The parameters are alphabetically sorted by their keys.
     pub fn params(&self) -> Params {
-        Params::from_indices(&self.data, &self.indices)
+        Params::new(&self.data, &self.indices)
     }
 
     /// Gets the parameter value by its key.
@@ -222,7 +222,7 @@ impl PartialEq<MediaType<'_>> for MediaTypeBuf {
         self.ty() == other.ty()
             && self.subty() == other.subty()
             && self.suffix() == other.suffix()
-            && self.params().eq(other.params())
+            && self.params().eq(other.params().iter().copied())
     }
 }
 
@@ -240,7 +240,7 @@ impl PartialOrd<MediaType<'_>> for MediaTypeBuf {
             Some(Ordering::Equal) => (),
             ne => return ne,
         }
-        self.params().partial_cmp(other.params())
+        self.params().partial_cmp(other.params().iter().copied())
     }
 }
 

@@ -1,4 +1,4 @@
-use super::{error::*, media_type_buf::*, name::*, params::*, parse::*, value::*};
+use super::{error::*, media_type_buf::*, name::*, parse::*, value::*};
 use std::{
     borrow::Cow,
     cmp::Ordering,
@@ -128,8 +128,8 @@ impl<'a> MediaType<'a> {
     /// Returns an iterator over the parameters.
     ///
     /// The parameters are alphabetically sorted by their keys.
-    pub fn params(&self) -> Params {
-        Params::from_slice(&self.params)
+    pub fn params(&self) -> &[(Name, Value)] {
+        &self.params
     }
 
     /// Gets the parameter value by its key.
