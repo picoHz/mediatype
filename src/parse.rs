@@ -34,17 +34,17 @@ impl Indices {
         &self.params
     }
 
-    pub fn parse(s: &str) -> Result<(Self, usize), ParseError> {
+    pub fn parse(s: &str) -> Result<(Self, usize), MediaTypeError> {
         // ty.len() + '/' + subty.len() + '+' + suffix.len()
         const MAX_ESSENCE_LENGTH: usize = Name::MAX_LENGTH * 3 + 2;
 
         let (ty, right) = match s[..MAX_ESSENCE_LENGTH.min(s.len())].split_once('/') {
             Some(pair) => pair,
-            _ => return Err(ParseError::InvalidTypeName),
+            _ => return Err(MediaTypeError::InvalidTypeName),
         };
 
         if !is_restricted_name(ty) {
-            return Err(ParseError::InvalidTypeName);
+            return Err(MediaTypeError::InvalidTypeName);
         }
 
         let suffix_end = right
@@ -59,11 +59,11 @@ impl Indices {
         };
 
         if !is_restricted_name(subty) {
-            return Err(ParseError::InvalidSubtypeName);
+            return Err(MediaTypeError::InvalidSubtypeName);
         }
 
         if !suffix.is_empty() && !is_restricted_name(&suffix[1..]) {
-            return Err(ParseError::InvalidSuffix);
+            return Err(MediaTypeError::InvalidSuffix);
         }
 
         let sub_end = ty.len() + 1 + subty.len();
@@ -86,7 +86,7 @@ impl Indices {
             let key_a = Name(&s[window[0][0] as usize..window[0][1] as usize]);
             let key_b = Name(&s[window[1][0] as usize..window[1][1] as usize]);
             if key_a == key_b {
-                return Err(ParseError::DuplicatedParamKeys);
+                return Err(MediaTypeError::DuplicatedParamKeys);
             }
         }
 
@@ -103,7 +103,7 @@ impl Indices {
 }
 
 #[cfg(test)]
-fn parse_to_string(s: &str) -> Result<String, ParseError> {
+fn parse_to_string(s: &str) -> Result<String, MediaTypeError> {
     use std::fmt::Write;
 
     let mut out = String::new();
@@ -142,14 +142,14 @@ fn is_restricted_char(c: char) -> bool {
         )
 }
 
-fn parse_params(s: &str) -> Result<(Vec<[usize; 4]>, usize), ParseError> {
+fn parse_params(s: &str) -> Result<(Vec<[usize; 4]>, usize), MediaTypeError> {
     let mut vec = Vec::new();
     let mut offset = 0;
     let mut len = 0;
     for (i, param) in s.trim_end_matches(' ').split_terminator(';').enumerate() {
         let empty = param.chars().all(|c| c == ' ');
         if i > 0 && empty {
-            return Err(ParseError::InvalidParams);
+            return Err(MediaTypeError::InvalidParams);
         }
         if !empty {
             let (key, value) = parse_param(param)?;
@@ -166,13 +166,13 @@ fn parse_params(s: &str) -> Result<(Vec<[usize; 4]>, usize), ParseError> {
     Ok((vec, len))
 }
 
-fn parse_param(s: &str) -> Result<(Range<usize>, Range<usize>), ParseError> {
+fn parse_param(s: &str) -> Result<(Range<usize>, Range<usize>), MediaTypeError> {
     if let Some((key, value)) = s.split_once('=') {
         let key_trimmed = key.trim_start_matches(' ').len();
         let key_start = key.len() - key_trimmed;
         let key_range = key_start..key_start + key_trimmed;
         if !is_restricted_name(&s[key_range.clone()]) {
-            return Err(ParseError::InvalidParamKey);
+            return Err(MediaTypeError::InvalidParamKey);
         }
 
         let value_trimmed = value.trim_end_matches(' ').len();
@@ -185,12 +185,12 @@ fn parse_param(s: &str) -> Result<(Range<usize>, Range<usize>), ParseError> {
             value_end - value_trimmed..value_end
         };
         if !is_restricted_str(&s[value_range.clone()]) {
-            return Err(ParseError::InvalidParamValue);
+            return Err(MediaTypeError::InvalidParamValue);
         }
 
         Ok((key_range, value_range))
     } else {
-        Err(ParseError::InvalidParams)
+        Err(MediaTypeError::InvalidParams)
     }
 }
 
@@ -239,49 +239,52 @@ mod tests {
 
     #[test]
     fn parse_error() {
-        assert_eq!(parse_to_string(""), Err(ParseError::InvalidTypeName));
+        assert_eq!(parse_to_string(""), Err(MediaTypeError::InvalidTypeName));
         assert_eq!(
             parse_to_string("textplain"),
-            Err(ParseError::InvalidTypeName)
+            Err(MediaTypeError::InvalidTypeName)
         );
         assert_eq!(
             parse_to_string("text//plain"),
-            Err(ParseError::InvalidSubtypeName)
+            Err(MediaTypeError::InvalidSubtypeName)
         );
         assert_eq!(
             parse_to_string(" text/plain"),
-            Err(ParseError::InvalidTypeName)
+            Err(MediaTypeError::InvalidTypeName)
         );
         assert_eq!(
             parse_to_string("text/plain; charsetUTF-8"),
-            Err(ParseError::InvalidParams)
+            Err(MediaTypeError::InvalidParams)
         );
         assert_eq!(
             parse_to_string("text/plain;;"),
-            Err(ParseError::InvalidParams)
+            Err(MediaTypeError::InvalidParams)
         );
         assert_eq!(
             parse_to_string("text/plain;;;"),
-            Err(ParseError::InvalidParams)
+            Err(MediaTypeError::InvalidParams)
         );
         assert_eq!(
             parse_to_string("text/plain; charset=UTF-8; charset=UTF-8"),
-            Err(ParseError::DuplicatedParamKeys)
+            Err(MediaTypeError::DuplicatedParamKeys)
         );
         assert_eq!(
             parse_to_string("text/plain; charset=\"UTF-8"),
-            Err(ParseError::InvalidParamValue)
+            Err(MediaTypeError::InvalidParamValue)
         );
         assert_eq!(
             parse_to_string("text/plain; charset==UTF-8"),
-            Err(ParseError::InvalidParamValue)
+            Err(MediaTypeError::InvalidParamValue)
         );
         assert_eq!(
             parse_to_string("text/plain; \r\n charset=UTF-8;"),
-            Err(ParseError::InvalidParamKey)
+            Err(MediaTypeError::InvalidParamKey)
         );
 
         let long_str = format!("{}/plain", "t".repeat(std::u16::MAX as usize));
-        assert_eq!(parse_to_string(&long_str), Err(ParseError::InvalidTypeName));
+        assert_eq!(
+            parse_to_string(&long_str),
+            Err(MediaTypeError::InvalidTypeName)
+        );
     }
 }

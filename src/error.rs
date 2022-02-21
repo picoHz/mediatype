@@ -1,19 +1,26 @@
 use std::{error, fmt};
 
-/// Parsing error.
+/// Media-type format error.
 #[non_exhaustive]
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
-pub enum ParseError {
+pub enum MediaTypeError {
+    /// The top-level type name is not valid.
     InvalidTypeName,
+    /// The subtype name is not valid.
     InvalidSubtypeName,
+    /// The suffix name is not valid.
     InvalidSuffix,
+    /// The parameter syntax is not valid.
     InvalidParams,
+    /// An invalid parameter key is detected.
     InvalidParamKey,
+    /// An invalid parameter value is detected.
     InvalidParamValue,
+    /// Two or more parameter keys have the same name.
     DuplicatedParamKeys,
 }
 
-impl fmt::Display for ParseError {
+impl fmt::Display for MediaTypeError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let msg = match self {
             Self::InvalidTypeName => "Invalid type name",
@@ -28,4 +35,4 @@ impl fmt::Display for ParseError {
     }
 }
 
-impl error::Error for ParseError {}
+impl error::Error for MediaTypeError {}

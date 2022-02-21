@@ -25,7 +25,7 @@ impl MediaTypeBuf {
         subty: Name,
         suffix: Option<Name>,
         params: &[(Name, Value)],
-    ) -> Result<Self, ParseError> {
+    ) -> Result<Self, MediaTypeError> {
         use std::fmt::Write;
         let mut s = String::new();
         write!(s, "{}/{}", ty, subty).unwrap();
@@ -45,7 +45,7 @@ impl MediaTypeBuf {
     ///
     /// [`String`]: https://doc.rust-lang.org/std/string/struct.String.html
     /// [`FromStr::from_str`]: https://doc.rust-lang.org/std/str/trait.FromStr.html
-    pub fn from_string(mut s: String) -> Result<Self, ParseError> {
+    pub fn from_string(mut s: String) -> Result<Self, MediaTypeError> {
         let (indices, len) = Indices::parse(&s)?;
         s.truncate(len);
         Ok(Self {
@@ -142,7 +142,7 @@ impl MediaTypeBuf {
 }
 
 impl FromStr for MediaTypeBuf {
-    type Err = ParseError;
+    type Err = MediaTypeError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let (indices, len) = Indices::parse(s)?;

@@ -81,7 +81,7 @@ impl<'a> MediaType<'a> {
     }
 
     /// Constructs a `MediaType` from `str` without copying the string.
-    pub fn parse<'s: 'a>(s: &'s str) -> Result<Self, ParseError> {
+    pub fn parse<'s: 'a>(s: &'s str) -> Result<Self, MediaTypeError> {
         let (indices, _) = Indices::parse(s)?;
         let params = indices
             .params()
@@ -101,7 +101,7 @@ impl<'a> MediaType<'a> {
         })
     }
 
-    /// Returns an iterator over the parameters.
+    /// Returns the parameters.
     ///
     /// The parameters are alphabetically sorted by their keys.
     pub fn params(&self) -> &[(Name, Value)] {
