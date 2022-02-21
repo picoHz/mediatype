@@ -21,11 +21,12 @@
 //! # Case sensitivity
 //!
 //! [`MediaType`] and [`MediaTypeBuf`] preserve the original string's letter case.
-//! Comparisons for [`MediaType`] and [`MediaTypeBuf`] are case-insensitive
+//! Comparisons for [`MediaType`], [`MediaTypeBuf`] and [`Name`] are case-insensitive
 //! except parameter values.
 //!
 //! [`MadiaType`]: ./struct.MediaType.html
 //! [`MediaTypeBuf`]: ./struct.MediaTypeBuf.html
+//! [`Name`]: ./struct.Name.html
 //!
 //!  ```
 //! # use mediatype::{names::*, MediaType, MediaTypeBuf};
