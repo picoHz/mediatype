@@ -12,14 +12,24 @@ use std::{
 /// ```
 /// use mediatype::{names::*, MediaType, Value};
 ///
-/// let boundary = Value::new("dyEV84n7XNJ").unwrap();
 /// let mut multipart = MediaType::new(MULTIPART, FORM_DATA);
-/// multipart.set_param(BOUNDARY, boundary);
 ///
+/// let boundary = Value::new("dyEV84n7XNJ").unwrap();
+/// multipart.set_param(BOUNDARY, boundary);
 /// assert_eq!(
 ///     multipart.to_string(),
 ///     "multipart/form-data; boundary=dyEV84n7XNJ"
 /// );
+///
+/// multipart.subty = RELATED;
+/// assert_eq!(
+///     multipart.to_string(),
+///     "multipart/related; boundary=dyEV84n7XNJ"
+/// );
+///
+/// const IMAGE_SVG: MediaType = MediaType::from_parts(IMAGE, SVG, Some(XML), None);
+/// let svg = MediaType::parse("IMAGE/SVG+XML").unwrap();
+/// assert_eq!(svg, IMAGE_SVG);
 /// ```
 #[derive(Debug, Clone)]
 pub struct MediaType<'a> {

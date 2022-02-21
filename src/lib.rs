@@ -3,7 +3,7 @@
 //! This crate provides two MediaType structs: [`MediaType`] and [`MediaTypeBuf`].
 //!
 //! - [`MediaType`] does not copy data during parsing
-//!     and just holds reference to the original string. It is also const-constructible.
+//!     and borrows the original string. It is also const-constructible.
 //! - [`MediaTypeBuf`] is an owned  and immutable version of [`MediaType`].
 //!
 //! [`MadiaType`]: ./struct.MediaType.html
