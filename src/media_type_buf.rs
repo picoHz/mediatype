@@ -219,24 +219,24 @@ impl Hash for MediaTypeBuf {
 
 impl PartialEq<MediaType<'_>> for MediaTypeBuf {
     fn eq(&self, other: &MediaType) -> bool {
-        self.ty() == other.ty()
-            && self.subty() == other.subty()
-            && self.suffix() == other.suffix()
+        self.ty() == other.ty
+            && self.subty() == other.subty
+            && self.suffix() == other.suffix
             && self.params().eq(other.params().iter().copied())
     }
 }
 
 impl PartialOrd<MediaType<'_>> for MediaTypeBuf {
     fn partial_cmp(&self, other: &MediaType) -> Option<Ordering> {
-        match self.ty().partial_cmp(&other.ty()) {
+        match self.ty().partial_cmp(&other.ty) {
             Some(Ordering::Equal) => (),
             ne => return ne,
         }
-        match self.subty().partial_cmp(&other.subty()) {
+        match self.subty().partial_cmp(&other.subty) {
             Some(Ordering::Equal) => (),
             ne => return ne,
         }
-        match self.suffix().partial_cmp(&other.suffix()) {
+        match self.suffix().partial_cmp(&other.suffix) {
             Some(Ordering::Equal) => (),
             ne => return ne,
         }

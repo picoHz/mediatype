@@ -23,9 +23,15 @@ use std::{
 /// ```
 #[derive(Debug, Clone)]
 pub struct MediaType<'a> {
-    ty: Name<'a>,
-    subty: Name<'a>,
-    suffix: Option<Name<'a>>,
+    /// Top-level type.
+    pub ty: Name<'a>,
+
+    /// Subtype.
+    pub subty: Name<'a>,
+
+    /// Optional suffix.
+    pub suffix: Option<Name<'a>>,
+
     params: Cow<'a, [(Name<'a>, Value<'a>)]>,
 }
 
@@ -93,36 +99,6 @@ impl<'a> MediaType<'a> {
             suffix: indices.suffix().map(|range| Name(&s[range])),
             params: Cow::Owned(params),
         })
-    }
-
-    /// Returns the top-level type.
-    pub const fn ty(&self) -> Name {
-        self.ty
-    }
-
-    /// Returns the subtype.
-    pub const fn subty(&self) -> Name {
-        self.subty
-    }
-
-    /// Returns the suffix.
-    pub const fn suffix(&self) -> Option<Name> {
-        self.suffix
-    }
-
-    /// Sets the top-level type.
-    pub fn set_ty<'t: 'a>(&mut self, ty: Name<'t>) {
-        self.ty = ty;
-    }
-
-    /// Sets the subtype.
-    pub fn set_subty<'t: 'a>(&mut self, subty: Name<'t>) {
-        self.subty = subty;
-    }
-
-    /// Sets the suffix.
-    pub fn set_suffix<'s: 'a>(&mut self, suffix: Option<Name<'s>>) {
-        self.suffix = suffix;
     }
 
     /// Returns an iterator over the parameters.
@@ -195,9 +171,9 @@ impl<'a> From<&'a MediaTypeBuf> for MediaType<'a> {
 
 impl<'a> PartialEq for MediaType<'a> {
     fn eq(&self, other: &MediaType) -> bool {
-        self.ty() == other.ty()
-            && self.subty() == other.subty()
-            && self.suffix() == other.suffix()
+        self.ty == other.ty
+            && self.subty == other.subty
+            && self.suffix == other.suffix
             && self.params().eq(other.params())
     }
 }
@@ -212,15 +188,15 @@ impl<'a> PartialOrd for MediaType<'a> {
 
 impl<'a> Ord for MediaType<'a> {
     fn cmp(&self, other: &Self) -> Ordering {
-        match self.ty().cmp(&other.ty()) {
+        match self.ty.cmp(&other.ty) {
             Ordering::Equal => (),
             ne => return ne,
         }
-        match self.subty().cmp(&other.subty()) {
+        match self.subty.cmp(&other.subty) {
             Ordering::Equal => (),
             ne => return ne,
         }
-        match self.suffix().cmp(&other.suffix()) {
+        match self.suffix.cmp(&other.suffix) {
             Ordering::Equal => (),
             ne => return ne,
         }
@@ -230,9 +206,9 @@ impl<'a> Ord for MediaType<'a> {
 
 impl<'a> Hash for MediaType<'a> {
     fn hash<H: Hasher>(&self, state: &mut H) {
-        self.ty().hash(state);
-        self.subty().hash(state);
-        self.suffix().hash(state);
+        self.ty.hash(state);
+        self.subty.hash(state);
+        self.suffix.hash(state);
         for param in self.params() {
             param.hash(state);
         }
@@ -259,29 +235,6 @@ mod tests {
             MediaType::from_parts(IMAGE, SVG, Some(XML), Some(&[(CHARSET, UTF_8)])).to_string(),
             "image/svg+xml; charset=UTF-8"
         );
-    }
-
-    #[test]
-    fn set_ty() {
-        let mut media_type = MediaType::from_parts(TEXT, PLAIN, None, Some(&[(CHARSET, UTF_8)]));
-        let upper_text = Name::new("TEXT").unwrap();
-        media_type.set_ty(upper_text);
-        assert_eq!(media_type.to_string(), "TEXT/plain; charset=UTF-8");
-    }
-
-    #[test]
-    fn set_subty() {
-        let mut media_type = MediaType::from_parts(TEXT, PLAIN, None, Some(&[(CHARSET, UTF_8)]));
-        let markdown = Name::new("markdown").unwrap();
-        media_type.set_subty(markdown);
-        assert_eq!(media_type.to_string(), "text/markdown; charset=UTF-8");
-    }
-
-    #[test]
-    fn set_suffix() {
-        let mut media_type = MediaType::from_parts(IMAGE, SVG, None, Some(&[(CHARSET, UTF_8)]));
-        media_type.set_suffix(Some(XML));
-        assert_eq!(media_type.to_string(), "image/svg+xml; charset=UTF-8");
     }
 
     #[test]
