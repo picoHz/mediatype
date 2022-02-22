@@ -98,15 +98,15 @@ impl<'a> MediaType<'a> {
             .iter()
             .map(|param| {
                 (
-                    Name(&s[param[0] as usize..param[1] as usize]),
-                    Value(&s[param[2] as usize..param[3] as usize]),
+                    Name::new_unchecked(&s[param[0] as usize..param[1] as usize]),
+                    Value::new_unchecked(&s[param[2] as usize..param[3] as usize]),
                 )
             })
             .collect();
         Ok(Self {
-            ty: Name(&s[indices.ty()]),
-            subty: Name(&s[indices.subty()]),
-            suffix: indices.suffix().map(|range| Name(&s[range])),
+            ty: Name::new_unchecked(&s[indices.ty()]),
+            subty: Name::new_unchecked(&s[indices.subty()]),
+            suffix: indices.suffix().map(|range| Name::new_unchecked(&s[range])),
             params: Cow::Owned(params),
         })
     }
@@ -133,7 +133,7 @@ impl<'a> MediaType<'a> {
     pub fn set_param<'k: 'a, 'v: 'a>(&mut self, key: Name<'k>, value: Value<'v>) -> Option<Value> {
         if let Ok(index) = self
             .params
-            .binary_search_by_key(&Name(key.as_str()), |(key, _)| *key)
+            .binary_search_by_key(&Name::new_unchecked(key.as_str()), |(key, _)| *key)
         {
             Some(mem::replace(&mut self.params.to_mut()[index].1, value))
         } else {

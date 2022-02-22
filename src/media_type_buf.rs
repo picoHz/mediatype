@@ -67,17 +67,19 @@ impl MediaTypeBuf {
 
     /// Returns the top-level type.
     pub fn ty(&self) -> Name {
-        Name(&self.data[self.indices.ty()])
+        Name::new_unchecked(&self.data[self.indices.ty()])
     }
 
     /// Returns the subtype.
     pub fn subty(&self) -> Name {
-        Name(&self.data[self.indices.subty()])
+        Name::new_unchecked(&self.data[self.indices.subty()])
     }
 
     /// Returns the suffix.
     pub fn suffix(&self) -> Option<Name> {
-        self.indices.suffix().map(|range| Name(&self.data[range]))
+        self.indices
+            .suffix()
+            .map(|range| Name::new_unchecked(&self.data[range]))
     }
 
     /// Returns the string representation without parameters.
@@ -108,10 +110,14 @@ impl MediaTypeBuf {
         let params = self.indices.params();
         params
             .binary_search_by_key(&key, |&[start, end, _, _]| {
-                Name(&self.data[start as usize..end as usize])
+                Name::new_unchecked(&self.data[start as usize..end as usize])
             })
             .ok()
-            .map(|index| Value(&self.data[params[index][2] as usize..params[index][3] as usize]))
+            .map(|index| {
+                Value::new_unchecked(
+                    &self.data[params[index][2] as usize..params[index][3] as usize],
+                )
+            })
     }
 
     /// Returns the canonicalized `MediaTypeBuf`.

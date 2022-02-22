@@ -8,7 +8,7 @@ use std::{cmp::Ordering, fmt};
 /// - Allowed characters are alphabets, numbers and `!#$&-^_.+%*'`.
 /// - The value can not be empty.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct Value<'a>(pub(crate) &'a str);
+pub struct Value<'a>(&'a str);
 
 impl<'a> Value<'a> {
     /// Constructs a `Value`.
@@ -25,6 +25,10 @@ impl<'a> Value<'a> {
     /// Returns the underlying string.
     pub fn as_str(&self) -> &str {
         self.0
+    }
+
+    pub(crate) const fn new_unchecked(s: &'a str) -> Self {
+        Self(s)
     }
 }
 

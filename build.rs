@@ -49,7 +49,7 @@ fn generate_consts(ty: &str, input: &str, prefixes: &[(&str, &str)]) {
             writeln!(out, "/// `{}`", name).unwrap();
             writeln!(
                 out,
-                "pub const {}: crate::{} = crate::{}(\"{}\");",
+                "pub const {}: crate::{} = crate::{}::new_unchecked(\"{}\");",
                 ident, ty, ty, name
             )
             .unwrap();

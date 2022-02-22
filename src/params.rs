@@ -29,8 +29,8 @@ impl<'a> Iterator for Params<'a> {
             self.index += 1;
             let param = self.indices.params()[index];
             Some((
-                Name(&self.data[param[0] as usize..param[1] as usize]),
-                Value(&self.data[param[2] as usize..param[3] as usize]),
+                Name::new_unchecked(&self.data[param[0] as usize..param[1] as usize]),
+                Value::new_unchecked(&self.data[param[2] as usize..param[3] as usize]),
             ))
         }
     }

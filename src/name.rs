@@ -13,7 +13,7 @@ use std::{
 /// - The subsequent characters must be alphabets, numbers or `!#$&-^_.+%*'`.
 /// - Length of the name can not exceed 127 bytes.
 #[derive(Debug, Copy, Clone)]
-pub struct Name<'a>(pub(crate) &'a str);
+pub struct Name<'a>(&'a str);
 
 impl<'a> Name<'a> {
     /// Constructs a `Name`.
@@ -34,6 +34,10 @@ impl<'a> Name<'a> {
 
     /// The maximum byte length of a name.
     pub const MAX_LENGTH: usize = 127;
+
+    pub(crate) const fn new_unchecked(s: &'a str) -> Self {
+        Self(s)
+    }
 }
 
 impl<'a> fmt::Display for Name<'a> {
