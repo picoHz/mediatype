@@ -1,5 +1,10 @@
 use super::parse::*;
-use std::{borrow::Cow, cmp::Ordering, fmt};
+use std::{
+    borrow::Cow,
+    cmp::Ordering,
+    fmt,
+    hash::{Hash, Hasher},
+};
 
 /// A media-type parameter value.
 ///
@@ -7,7 +12,7 @@ use std::{borrow::Cow, cmp::Ordering, fmt};
 ///
 /// - Allowed characters are alphabets, numbers and `!#$&-^_.+%*'`.
 /// - The value can not be empty.
-#[derive(Debug, Copy, Clone, Hash)]
+#[derive(Debug, Copy, Clone)]
 pub struct Value<'a>(&'a str);
 
 impl<'a> Value<'a> {
@@ -68,17 +73,29 @@ impl<'a> fmt::Display for Value<'a> {
     }
 }
 
-impl<'a> AsRef<str> for Value<'a> {
-    fn as_ref(&self) -> &str {
-        self.0
+impl<'a> PartialEq for Value<'a> {
+    fn eq(&self, other: &Self) -> bool {
+        self.unquoted_str() == other.unquoted_str()
     }
 }
 
 impl<'a> Eq for Value<'a> {}
 
+impl<'a> PartialOrd for Value<'a> {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
 impl<'a> Ord for Value<'a> {
     fn cmp(&self, other: &Self) -> Ordering {
-        self.partial_cmp(other).unwrap()
+        self.unquoted_str().cmp(&other.unquoted_str())
+    }
+}
+
+impl<'a> Hash for Value<'a> {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.unquoted_str().hash(state);
     }
 }
 
@@ -87,7 +104,7 @@ where
     T: AsRef<str>,
 {
     fn eq(&self, other: &T) -> bool {
-        self.0.eq_ignore_ascii_case(other.as_ref())
+        self.unquoted_str() == other.as_ref()
     }
 }
 
@@ -96,11 +113,7 @@ where
     T: AsRef<str>,
 {
     fn partial_cmp(&self, other: &T) -> Option<Ordering> {
-        Some(
-            self.0
-                .to_ascii_lowercase()
-                .cmp(&other.as_ref().to_ascii_lowercase()),
-        )
+        Some(self.unquoted_str().as_ref().cmp(other.as_ref()))
     }
 }
 
