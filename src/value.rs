@@ -7,7 +7,7 @@ use std::{cmp::Ordering, fmt};
 ///
 /// - Allowed characters are alphabets, numbers and `!#$&-^_.+%*'`.
 /// - The value can not be empty.
-#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Copy, Clone, Hash)]
 pub struct Value<'a>(&'a str);
 
 impl<'a> Value<'a> {
@@ -44,26 +44,32 @@ impl<'a> AsRef<str> for Value<'a> {
     }
 }
 
-impl<'a> PartialEq<String> for Value<'a> {
-    fn eq(&self, other: &String) -> bool {
-        self.0 == other
+impl<'a> Eq for Value<'a> {}
+
+impl<'a> Ord for Value<'a> {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.partial_cmp(other).unwrap()
     }
 }
 
-impl<'a> PartialOrd<String> for Value<'a> {
-    fn partial_cmp(&self, other: &String) -> Option<Ordering> {
-        Some(self.0.cmp(other))
+impl<'a, T> PartialEq<T> for Value<'a>
+where
+    T: AsRef<str>,
+{
+    fn eq(&self, other: &T) -> bool {
+        self.0.eq_ignore_ascii_case(other.as_ref())
     }
 }
 
-impl<'a> PartialEq<str> for Value<'a> {
-    fn eq(&self, other: &str) -> bool {
-        self.0 == other
-    }
-}
-
-impl<'a> PartialOrd<str> for Value<'a> {
-    fn partial_cmp(&self, other: &str) -> Option<Ordering> {
-        Some(self.0.cmp(other))
+impl<'a, T> PartialOrd<T> for Value<'a>
+where
+    T: AsRef<str>,
+{
+    fn partial_cmp(&self, other: &T) -> Option<Ordering> {
+        Some(
+            self.0
+                .to_ascii_lowercase()
+                .cmp(&other.as_ref().to_ascii_lowercase()),
+        )
     }
 }
