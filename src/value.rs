@@ -8,10 +8,22 @@ use std::{
 
 /// A media-type parameter value.
 ///
-/// A valid value has the following requirements:
+/// The constructor accepts both an unquoted string and a quoted string like `"Hello Wold!"`.
+/// If the string is not quoted, the allowed characters are
+/// alphabets, numbers and `!#$&-^_.+%*'`.
 ///
-/// - Allowed characters are alphabets, numbers and `!#$&-^_.+%*'`.
-/// - The value can not be empty.
+/// ```
+/// # use mediatype::Value;
+/// let utf8 = Value::new("UTF-8").unwrap();
+/// let utf8_quoted = Value::new("\"UTF-8\"").unwrap();
+/// assert_eq!(utf8, utf8_quoted);
+/// assert_eq!(utf8_quoted.as_str(), "\"UTF-8\"");
+/// assert_eq!(utf8_quoted.unquoted_str(), "UTF-8");
+///
+/// let double_quoted = Value::new("\" \\\" \"").unwrap();
+/// assert_eq!(double_quoted.as_str(), "\" \\\" \"");
+/// assert_eq!(double_quoted.unquoted_str(), " \" ");
+/// ```
 #[derive(Debug, Copy, Clone)]
 pub struct Value<'a>(&'a str);
 
@@ -20,11 +32,14 @@ impl<'a> Value<'a> {
     ///
     /// If the string is not valid as a value, returns `None`.
     pub fn new(s: &'a str) -> Option<Self> {
-        if is_restricted_str(s) {
-            Some(Self(s))
-        } else {
-            None
+        if let Some(quoted) = s.strip_prefix('\"') {
+            if quoted.len() > 1 && parse_quoted_value(quoted) == Ok(quoted.len()) {
+                return Some(Self(s));
+            }
+        } else if is_restricted_str(s) {
+            return Some(Self(s));
         }
+        None
     }
 
     /// Returns the underlying string.
@@ -123,8 +138,8 @@ mod tests {
 
     #[test]
     fn unquoted_str() {
-        assert_eq!(Value::new_unchecked("\"\\a\\\\\"").unquoted_str(), "a\\");
-        assert_eq!(Value::new_unchecked("\"\\\"\"").unquoted_str(), "\"");
-        assert_eq!(Value::new_unchecked("\"\\a\\b\\c\"").unquoted_str(), "abc");
+        assert_eq!(Value::new("\"\\a\\\\\"").unwrap().unquoted_str(), "a\\");
+        assert_eq!(Value::new("\"\\\"\"").unwrap().unquoted_str(), "\"");
+        assert_eq!(Value::new("\"\\a\\b\\c\"").unwrap().unquoted_str(), "abc");
     }
 }

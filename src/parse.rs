@@ -208,7 +208,7 @@ fn parse_param(s: &str) -> Result<Option<ParamRange>, MediaTypeError> {
     }
 }
 
-fn parse_quoted_value(s: &str) -> Result<usize, MediaTypeError> {
+pub fn parse_quoted_value(s: &str) -> Result<usize, MediaTypeError> {
     let mut len = 0;
     let mut escaped = false;
     for c in s.chars() {
