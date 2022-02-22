@@ -31,7 +31,7 @@ impl<'a> Value<'a> {
     pub fn unquoted_str(&self) -> Cow<'_, str> {
         if self.0.starts_with('"') {
             let inner = &self.0[1..self.0.len() - 1];
-            if self.0.contains('\'') {
+            if self.0.contains('\\') {
                 let mut s = String::with_capacity(inner.len());
                 let mut quoted = false;
                 for c in inner.chars() {
@@ -40,7 +40,7 @@ impl<'a> Value<'a> {
                             quoted = false;
                             s.push(c);
                         }
-                        '\'' => {
+                        '\\' => {
                             quoted = true;
                         }
                         _ => {
@@ -109,5 +109,17 @@ where
 {
     fn partial_cmp(&self, other: &T) -> Option<Ordering> {
         Some(self.unquoted_str().as_ref().cmp(other.as_ref()))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn unquoted_str() {
+        assert_eq!(Value::new_unchecked("\"\\a\\\\\"").unquoted_str(), "a\\");
+        assert_eq!(Value::new_unchecked("\"\\\"\"").unquoted_str(), "\"");
+        assert_eq!(Value::new_unchecked("\"\\a\\b\\c\"").unquoted_str(), "abc");
     }
 }
