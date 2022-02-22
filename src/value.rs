@@ -114,21 +114,75 @@ impl<'a> Hash for Value<'a> {
     }
 }
 
-impl<'a, T> PartialEq<T> for Value<'a>
-where
-    T: AsRef<str>,
-{
-    fn eq(&self, other: &T) -> bool {
-        self.unquoted_str() == other.as_ref()
+impl<'a> PartialEq<String> for Value<'a> {
+    fn eq(&self, other: &String) -> bool {
+        self.eq(other.as_str())
     }
 }
 
-impl<'a, T> PartialOrd<T> for Value<'a>
-where
-    T: AsRef<str>,
-{
-    fn partial_cmp(&self, other: &T) -> Option<Ordering> {
-        Some(self.unquoted_str().as_ref().cmp(other.as_ref()))
+impl<'a> PartialOrd<String> for Value<'a> {
+    fn partial_cmp(&self, other: &String) -> Option<Ordering> {
+        self.partial_cmp(other.as_str())
+    }
+}
+
+impl<'a> PartialEq<&String> for Value<'a> {
+    fn eq(&self, other: &&String) -> bool {
+        self.eq(other.as_str())
+    }
+}
+
+impl<'a> PartialOrd<&String> for Value<'a> {
+    fn partial_cmp(&self, other: &&String) -> Option<Ordering> {
+        self.partial_cmp(other.as_str())
+    }
+}
+
+impl<'a> PartialEq<str> for Value<'a> {
+    fn eq(&self, other: &str) -> bool {
+        self.unquoted_str() == other
+    }
+}
+
+impl<'a> PartialOrd<str> for Value<'a> {
+    fn partial_cmp(&self, other: &str) -> Option<Ordering> {
+        Some(self.unquoted_str().as_ref().cmp(other))
+    }
+}
+
+impl<'a> PartialEq<&str> for Value<'a> {
+    fn eq(&self, other: &&str) -> bool {
+        self.eq(*other)
+    }
+}
+
+impl<'a> PartialOrd<&str> for Value<'a> {
+    fn partial_cmp(&self, other: &&str) -> Option<Ordering> {
+        self.partial_cmp(*other)
+    }
+}
+
+impl<'a> PartialEq<Cow<'_, str>> for Value<'a> {
+    fn eq(&self, other: &Cow<'_, str>) -> bool {
+        self.eq(other.as_ref())
+    }
+}
+
+impl<'a> PartialOrd<Cow<'_, str>> for Value<'a> {
+    fn partial_cmp(&self, other: &Cow<'_, str>) -> Option<Ordering> {
+        self.partial_cmp(other.as_ref())
+    }
+}
+
+impl<'a> PartialEq<&Cow<'_, str>> for Value<'a> {
+    fn eq(&self, other: &&Cow<'_, str>) -> bool {
+        self.eq(other.as_ref())
+    }
+}
+
+impl<'a> PartialOrd<&Cow<'_, str>> for Value<'a> {
+    fn partial_cmp(&self, other: &&Cow<'_, str>) -> Option<Ordering> {
+        self.partial_cmp(other.as_ref())
     }
 }
 
