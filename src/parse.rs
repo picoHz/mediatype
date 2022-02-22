@@ -144,56 +144,91 @@ fn is_restricted_char(c: char) -> bool {
         )
 }
 
+fn is_ows(c: char) -> bool {
+    c == ' ' || c == '\t'
+}
+
 fn parse_params(s: &str) -> Result<(Vec<[usize; 4]>, usize), MediaTypeError> {
     let mut vec = Vec::new();
     let mut offset = 0;
     let mut len = 0;
-    for (i, param) in s.trim_end_matches(' ').split_terminator(';').enumerate() {
-        let empty = param.chars().all(|c| c == ' ');
-        if i > 0 && empty {
-            return Err(MediaTypeError::InvalidParams);
-        }
-        if !empty {
-            let (key, value) = parse_param(param)?;
-            vec.push([
-                offset + key.start,
-                offset + key.end,
-                offset + value.start,
-                offset + value.end,
-            ]);
-            len = offset + value.end;
-        }
-        offset += param.len() + 1;
+
+    loop {
+        let (key, value) = match parse_param(&s[offset..])? {
+            Some(param) => param,
+            _ => break,
+        };
+
+        vec.push([
+            offset + key.start,
+            offset + key.end,
+            offset + value.start,
+            offset + value.end,
+        ]);
+        len = offset + value.end;
+        offset += value.end;
     }
+
     Ok((vec, len))
 }
 
-fn parse_param(s: &str) -> Result<(Range<usize>, Range<usize>), MediaTypeError> {
-    if let Some((key, value)) = s.split_once('=') {
-        let key_trimmed = key.trim_start_matches(' ').len();
-        let key_start = key.len() - key_trimmed;
-        let key_range = key_start..key_start + key_trimmed;
-        if !is_restricted_name(&s[key_range.clone()]) {
-            return Err(MediaTypeError::InvalidParamKey);
+fn parse_param(s: &str) -> Result<Option<(Range<usize>, Range<usize>)>, MediaTypeError> {
+    let (ows, right) = match s.split_once(';') {
+        Some((ows, right)) if ows.chars().all(is_ows) && right.chars().all(is_ows) => {
+            return Ok(None)
         }
+        Some((ows, right)) if ows.chars().all(is_ows) => (ows, right),
+        _ if s.chars().all(is_ows) => return Ok(None),
+        _ => return Err(MediaTypeError::InvalidParams),
+    };
 
-        let value_trimmed = value.trim_end_matches(' ').len();
-        let value_end = key.len() + 1 + value_trimmed;
-        let value = &s[value_end - value_trimmed..value_end];
+    let (key, value) = match right.split_once('=') {
+        Some(pair) => pair,
+        _ => return Err(MediaTypeError::InvalidParams),
+    };
 
-        let value_range = if value.len() > 1 && value.starts_with('"') && value.ends_with('"') {
-            value_end - value_trimmed + 1..value_end - 1
-        } else {
-            value_end - value_trimmed..value_end
-        };
-        if !is_restricted_str(&s[value_range.clone()]) {
-            return Err(MediaTypeError::InvalidParamValue);
-        }
-
-        Ok((key_range, value_range))
-    } else {
-        Err(MediaTypeError::InvalidParams)
+    let key_trimmed = key.trim_start_matches(is_ows).len();
+    let key_start = ows.len() + 1 + key.len() - key_trimmed;
+    let key_range = key_start..key_start + key_trimmed;
+    if !is_restricted_name(&s[key_range.clone()]) {
+        return Err(MediaTypeError::InvalidParamKey);
     }
+
+    let value_start = key_range.end + 1;
+    if value.starts_with("\"") {
+        let value_end = value_start + parse_quoted_value(&value[1..])? + 1;
+        let value_range = value_start..value_end;
+        Ok(Some((key_range, value_range)))
+    } else {
+        let value_end = value_start
+            + value
+                .chars()
+                .take_while(|&c| is_restricted_char(c))
+                .map(char::len_utf8)
+                .sum::<usize>();
+        let value_range = value_start..value_end;
+        Ok(Some((key_range, value_range)))
+    }
+}
+
+fn parse_quoted_value(s: &str) -> Result<usize, MediaTypeError> {
+    let mut len = 0;
+    let mut escaped = false;
+    for c in s.chars() {
+        len += c.len_utf8();
+        match c {
+            _ if escaped => {
+                escaped = false;
+            }
+            '\\' => {
+                escaped = true;
+            }
+            '"' => return Ok(len),
+            _ if is_restricted_char(c) => (),
+            _ => return Err(MediaTypeError::InvalidParamValue),
+        }
+    }
+    Err(MediaTypeError::InvalidParamValue)
 }
 
 #[cfg(test)]
@@ -223,7 +258,11 @@ mod tests {
         );
         assert_eq!(
             parse_to_string("image/svg+xml; charset=\"UTF-8\""),
-            Ok("image/svg+xml; charset=UTF-8".into())
+            Ok("image/svg+xml; charset=\"UTF-8\"".into())
+        );
+        assert_eq!(
+            parse_to_string("image/svg+xml; charset=\"UT\\\"F-8\""),
+            Ok("image/svg+xml; charset=\"UT\\\"F-8\"".into())
         );
         assert_eq!(
             parse_to_string("multipart/form-data ; boundary=--boundary13234"),
@@ -276,7 +315,7 @@ mod tests {
         );
         assert_eq!(
             parse_to_string("text/plain; charset==UTF-8"),
-            Err(MediaTypeError::InvalidParamValue)
+            Err(MediaTypeError::InvalidParams)
         );
         assert_eq!(
             parse_to_string("text/plain; \r\n charset=UTF-8;"),
