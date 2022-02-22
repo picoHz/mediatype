@@ -9,7 +9,7 @@ use std::{
 /// An owned and immutable MediaType.
 ///
 /// ```
-/// use mediatype::{names::*, values::*, MediaType, MediaTypeBuf};
+/// use mediatype::{names::*, values::*, MediaType, MediaTypeBuf, ReadParams};
 ///
 /// let text_plain: MediaTypeBuf = "text/plain; charset=UTF-8".parse().unwrap();
 /// assert_eq!(text_plain.get_param(CHARSET).unwrap(), UTF_8);
@@ -98,28 +98,6 @@ impl MediaTypeBuf {
         &self.data
     }
 
-    /// Returns an iterator over the parameters.
-    ///
-    /// The parameters are alphabetically sorted by their keys.
-    pub fn params(&self) -> Params {
-        Params::new(&self.data, &self.indices)
-    }
-
-    /// Gets the parameter value by its key.
-    pub fn get_param(&self, key: Name) -> Option<Value> {
-        let params = self.indices.params();
-        params
-            .binary_search_by_key(&key, |&[start, end, _, _]| {
-                Name::new_unchecked(&self.data[start as usize..end as usize])
-            })
-            .ok()
-            .map(|index| {
-                Value::new_unchecked(
-                    &self.data[params[index][2] as usize..params[index][3] as usize],
-                )
-            })
-    }
-
     /// Returns the canonicalized `MediaTypeBuf`.
     ///
     /// All strings except parameter values will be converted to lowercase.
@@ -155,6 +133,26 @@ impl MediaTypeBuf {
     /// Constructs a `MediaType` from `self`.
     pub fn to_ref(&self) -> MediaType {
         MediaType::parse(self.as_str()).unwrap()
+    }
+}
+
+impl ReadParams for MediaTypeBuf {
+    fn params(&self) -> Params {
+        Params::from_indices(&self.data, &self.indices)
+    }
+
+    fn get_param(&self, key: Name) -> Option<Value> {
+        let params = self.indices.params();
+        params
+            .binary_search_by_key(&key, |&[start, end, _, _]| {
+                Name::new_unchecked(&self.data[start as usize..end as usize])
+            })
+            .ok()
+            .map(|index| {
+                Value::new_unchecked(
+                    &self.data[params[index][2] as usize..params[index][3] as usize],
+                )
+            })
     }
 }
 
@@ -239,7 +237,7 @@ impl PartialEq<MediaType<'_>> for MediaTypeBuf {
         self.ty() == other.ty
             && self.subty() == other.subty
             && self.suffix() == other.suffix
-            && self.params().eq(other.params().iter().copied())
+            && self.params().eq(other.params())
     }
 }
 
@@ -257,7 +255,7 @@ impl PartialOrd<MediaType<'_>> for MediaTypeBuf {
             Some(Ordering::Equal) => (),
             ne => return ne,
         }
-        self.params().partial_cmp(other.params().iter().copied())
+        self.params().partial_cmp(other.params())
     }
 }
 

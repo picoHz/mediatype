@@ -1,4 +1,4 @@
-use super::{error::*, media_type_buf::*, name::*, parse::*, value::*};
+use super::{error::*, media_type_buf::*, name::*, params::*, parse::*, value::*};
 use std::{
     borrow::Cow,
     cmp::Ordering,
@@ -10,7 +10,7 @@ use std::{
 /// A borrowed MediaType.
 ///
 /// ```
-/// use mediatype::{names::*, MediaType, Value};
+/// use mediatype::{names::*, MediaType, Value, WriteParams};
 ///
 /// let mut multipart = MediaType::new(MULTIPART, FORM_DATA);
 ///
@@ -110,27 +110,23 @@ impl<'a> MediaType<'a> {
             params: Cow::Owned(params),
         })
     }
+}
 
-    /// Returns the parameters.
-    ///
-    /// The parameters are alphabetically sorted by their keys.
-    pub fn params(&self) -> &[(Name, Value)] {
-        &self.params
+impl<'a> ReadParams for MediaType<'a> {
+    fn params(&self) -> Params {
+        Params::from_slice(&self.params)
     }
 
-    /// Gets the parameter value by its key.
-    pub fn get_param(&self, key: Name) -> Option<Value> {
+    fn get_param(&self, key: Name) -> Option<Value> {
         self.params
             .binary_search_by_key(&key, |(key, _)| *key)
             .ok()
             .map(|index| self.params[index].1)
     }
+}
 
-    /// Sets a parameter value.
-    ///
-    /// If the parameter is already set, replaces it with a new value and
-    /// returns the old value.
-    pub fn set_param<'k: 'a, 'v: 'a>(&mut self, key: Name<'k>, value: Value<'v>) -> Option<Value> {
+impl<'a> WriteParams<'a> for MediaType<'a> {
+    fn set_param<'k: 'a, 'v: 'a>(&mut self, key: Name<'k>, value: Value<'v>) -> Option<Value> {
         if let Ok(index) = self
             .params
             .binary_search_by_key(&Name::new_unchecked(key.as_str()), |(key, _)| *key)
@@ -144,16 +140,14 @@ impl<'a> MediaType<'a> {
         }
     }
 
-    /// Removes and returns a parameter value by its key.
-    pub fn remove_param(&mut self, key: Name) -> Option<Value> {
+    fn remove_param(&mut self, key: Name) -> Option<Value> {
         self.params
             .binary_search_by_key(&key, |(key, _)| *key)
             .ok()
             .map(|index| self.params.to_mut().remove(index).1)
     }
 
-    /// Removes all parameters.
-    pub fn clear_params(&mut self) {
+    fn clear_params(&mut self) {
         if !self.params.is_empty() {
             self.params.to_mut().clear();
         }
