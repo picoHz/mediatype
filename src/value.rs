@@ -29,7 +29,32 @@ impl<'a> Value<'a> {
 
     /// Returns the underlying string.
     pub fn unquoted_str(&self) -> Cow<'_, str> {
-        Cow::Borrowed(self.0)
+        if self.0.starts_with('"') {
+            let inner = &self.0[1..self.0.len() - 1];
+            if self.0.contains('\'') {
+                let mut s = String::with_capacity(inner.len());
+                let mut quoted = false;
+                for c in inner.chars() {
+                    match c {
+                        _ if quoted => {
+                            quoted = false;
+                            s.push(c);
+                        }
+                        '\'' => {
+                            quoted = true;
+                        }
+                        _ => {
+                            s.push(c);
+                        }
+                    }
+                }
+                Cow::Owned(s)
+            } else {
+                Cow::Borrowed(inner)
+            }
+        } else {
+            Cow::Borrowed(self.0)
+        }
     }
 
     pub(crate) const fn new_unchecked(s: &'a str) -> Self {
