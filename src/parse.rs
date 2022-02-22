@@ -221,8 +221,8 @@ fn parse_quoted_value(s: &str) -> Result<usize, MediaTypeError> {
                 escaped = true;
             }
             '"' => return Ok(len),
-            _ if is_restricted_char(c) => (),
-            _ => return Err(MediaTypeError::InvalidParamValue),
+            '\n' => return Err(MediaTypeError::InvalidParamValue),
+            _ => (),
         }
     }
     Err(MediaTypeError::InvalidParamValue)
