@@ -153,12 +153,7 @@ fn parse_params(s: &str) -> Result<(Vec<[usize; 4]>, usize), MediaTypeError> {
     let mut offset = 0;
     let mut len = 0;
 
-    loop {
-        let (key, value) = match parse_param(&s[offset..])? {
-            Some(param) => param,
-            _ => break,
-        };
-
+    while let Some((key, value)) = parse_param(&s[offset..])? {
         vec.push([
             offset + key.start,
             offset + key.end,
@@ -172,7 +167,9 @@ fn parse_params(s: &str) -> Result<(Vec<[usize; 4]>, usize), MediaTypeError> {
     Ok((vec, len))
 }
 
-fn parse_param(s: &str) -> Result<Option<(Range<usize>, Range<usize>)>, MediaTypeError> {
+type ParamRange = (Range<usize>, Range<usize>);
+
+fn parse_param(s: &str) -> Result<Option<ParamRange>, MediaTypeError> {
     let (ows, right) = match s.split_once(';') {
         Some((ows, right)) if ows.chars().all(is_ows) && right.chars().all(is_ows) => {
             return Ok(None)
@@ -195,8 +192,8 @@ fn parse_param(s: &str) -> Result<Option<(Range<usize>, Range<usize>)>, MediaTyp
     }
 
     let value_start = key_range.end + 1;
-    if value.starts_with("\"") {
-        let value_end = value_start + parse_quoted_value(&value[1..])? + 1;
+    if let Some(value) = value.strip_prefix('\"') {
+        let value_end = value_start + parse_quoted_value(value)? + 1;
         let value_range = value_start..value_end;
         Ok(Some((key_range, value_range)))
     } else {
