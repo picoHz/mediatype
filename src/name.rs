@@ -52,25 +52,11 @@ impl<'a> AsRef<str> for Name<'a> {
     }
 }
 
-impl<'a> PartialEq for Name<'a> {
-    fn eq(&self, other: &Name) -> bool {
-        self.0.eq_ignore_ascii_case(other.0)
-    }
-}
-
 impl<'a> Eq for Name<'a> {}
-
-impl<'a> PartialOrd for Name<'a> {
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        Some(self.cmp(other))
-    }
-}
 
 impl<'a> Ord for Name<'a> {
     fn cmp(&self, other: &Self) -> Ordering {
-        self.0
-            .to_ascii_lowercase()
-            .cmp(&other.0.to_ascii_lowercase())
+        self.partial_cmp(other).unwrap()
     }
 }
 
@@ -80,38 +66,24 @@ impl<'a> Hash for Name<'a> {
     }
 }
 
-impl<'a> PartialEq<String> for Name<'a> {
-    fn eq(&self, other: &String) -> bool {
-        self.0.eq_ignore_ascii_case(other)
+impl<'a, T> PartialEq<T> for Name<'a>
+where
+    T: AsRef<str>,
+{
+    fn eq(&self, other: &T) -> bool {
+        self.0.eq_ignore_ascii_case(other.as_ref())
     }
 }
 
-impl<'a> PartialOrd<String> for Name<'a> {
-    fn partial_cmp(&self, other: &String) -> Option<Ordering> {
-        Some(self.0.cmp(other))
-    }
-}
-
-impl<'a> PartialEq<str> for Name<'a> {
-    fn eq(&self, other: &str) -> bool {
-        self.0.eq_ignore_ascii_case(other)
-    }
-}
-
-impl<'a> PartialEq<&str> for Name<'a> {
-    fn eq(&self, other: &&str) -> bool {
-        self.0.eq_ignore_ascii_case(other)
-    }
-}
-
-impl<'a> PartialOrd<str> for Name<'a> {
-    fn partial_cmp(&self, other: &str) -> Option<Ordering> {
-        Some(self.0.cmp(other))
-    }
-}
-
-impl<'a> PartialOrd<&str> for Name<'a> {
-    fn partial_cmp(&self, other: &&str) -> Option<Ordering> {
-        Some(self.0.cmp(other))
+impl<'a, T> PartialOrd<T> for Name<'a>
+where
+    T: AsRef<str>,
+{
+    fn partial_cmp(&self, other: &T) -> Option<Ordering> {
+        Some(
+            self.0
+                .to_ascii_lowercase()
+                .cmp(&other.as_ref().to_ascii_lowercase()),
+        )
     }
 }
