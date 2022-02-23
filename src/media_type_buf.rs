@@ -91,7 +91,7 @@ impl MediaTypeBuf {
     /// assert_eq!(media_type.essence(), "image/svg+xml");
     /// ```
     pub fn essence(&self) -> &str {
-        self.data.split(';').next().unwrap()
+        self.data.split(';').next().unwrap().trim_end()
     }
 
     /// Returns the underlying string.
@@ -330,6 +330,12 @@ mod tests {
         );
         assert_eq!(
             MediaTypeBuf::from_str("image/svg+xml; charset=UTF-8")
+                .unwrap()
+                .essence(),
+            "image/svg+xml"
+        );
+        assert_eq!(
+            MediaTypeBuf::from_str("image/svg+xml  ; charset=UTF-8")
                 .unwrap()
                 .essence(),
             "image/svg+xml"
