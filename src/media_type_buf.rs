@@ -149,16 +149,15 @@ impl ReadParams for MediaTypeBuf {
     }
 
     fn get_param(&self, key: Name) -> Option<Value> {
-        let params = self.indices.params();
-        params
-            .binary_search_by_key(&key, |&[start, end, _, _]| {
-                Name::new_unchecked(&self.data[start as usize..end as usize])
+        self.indices
+            .params()
+            .iter()
+            .rev()
+            .find(|&&[start, end, _, _]| {
+                key == Name::new_unchecked(&self.data[start as usize..end as usize])
             })
-            .ok()
-            .map(|index| {
-                Value::new_unchecked(
-                    &self.data[params[index][2] as usize..params[index][3] as usize],
-                )
+            .map(|&[_, _, start, end]| {
+                Value::new_unchecked(&self.data[start as usize..end as usize])
             })
     }
 }
@@ -309,10 +308,10 @@ mod tests {
             Some(UTF_8)
         );
         assert_eq!(
-            MediaTypeBuf::from_str("image/svg+xml; charset=UTF-8; HELLO=WORLD")
+            MediaTypeBuf::from_str("image/svg+xml; charset=UTF-8; HELLO=WORLD; HELLO=world")
                 .unwrap()
                 .get_param(Name::new("hello").unwrap()),
-            Some(Value::new("WORLD").unwrap())
+            Some(Value::new("world").unwrap())
         );
     }
 
@@ -365,7 +364,7 @@ mod tests {
         );
         assert_eq!(
             MediaTypeBuf::from_str("image/svg+xml; hello=WORLD; charset=UTF-8").unwrap(),
-            MediaTypeBuf::from_str("IMAGE/SVG+XML; CHARSET=UTF-8; HELLO=WORLD").unwrap()
+            MediaTypeBuf::from_str("IMAGE/SVG+XML; HELLO=WORLD; CHARSET=UTF-8").unwrap()
         );
     }
 }

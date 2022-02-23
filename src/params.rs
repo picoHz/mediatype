@@ -70,8 +70,6 @@ impl<'a> Iterator for Params<'a> {
 /// A trait for getting parameter values.
 pub trait ReadParams {
     /// Returns the parameters.
-    ///
-    /// The parameters are alphabetically sorted by their keys.
     fn params(&self) -> Params;
 
     /// Gets the parameter value by its key.
@@ -82,12 +80,12 @@ pub trait ReadParams {
 pub trait WriteParams<'a>: ReadParams {
     /// Sets a parameter value.
     ///
-    /// If the parameter is already set, replaces it with a new value and
-    /// returns the old value.
-    fn set_param<'k: 'a, 'v: 'a>(&mut self, key: Name<'k>, value: Value<'v>) -> Option<Value>;
+    /// If the parameters with the key already exist,
+    /// they will be replaced with a new value.
+    fn set_param<'k: 'a, 'v: 'a>(&mut self, key: Name<'k>, value: Value<'v>);
 
-    /// Removes and returns a parameter value by its key.
-    fn remove_param(&mut self, key: Name) -> Option<Value>;
+    /// Removes all parameters with the key.
+    fn remove_params(&mut self, key: Name);
 
     /// Removes all parameters.
     fn clear_params(&mut self);

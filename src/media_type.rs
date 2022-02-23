@@ -4,7 +4,6 @@ use std::{
     cmp::Ordering,
     fmt,
     hash::{Hash, Hasher},
-    mem,
 };
 
 /// A borrowed MediaType.
@@ -27,7 +26,7 @@ use std::{
 ///     "multipart/related; boundary=dyEV84n7XNJ"
 /// );
 ///
-/// const IMAGE_SVG: MediaType = MediaType::from_parts(IMAGE, SVG, Some(XML), None);
+/// const IMAGE_SVG: MediaType = MediaType::from_parts(IMAGE, SVG, Some(XML), &[]);
 /// let svg = MediaType::parse("IMAGE/SVG+XML").unwrap();
 /// assert_eq!(svg, IMAGE_SVG);
 /// ```
@@ -63,13 +62,9 @@ impl<'a> MediaType<'a> {
 
     /// Constructs a `MediaType` with an optional suffix and parameters.
     ///
-    /// This function accepts only one parameter
-    /// because key duplication is not detectable at compile-time.
-    ///
     /// ```
     /// # use mediatype::{names::*, values::*, MediaType};
-    /// const IMAGE_SVG: MediaType =
-    ///     MediaType::from_parts(IMAGE, SVG, Some(XML), Some(&[(CHARSET, UTF_8)]));
+    /// const IMAGE_SVG: MediaType = MediaType::from_parts(IMAGE, SVG, Some(XML), &[(CHARSET, UTF_8)]);
     /// assert_eq!(
     ///     IMAGE_SVG,
     ///     MediaType::parse("image/svg+xml; charset=UTF-8").unwrap()
@@ -79,9 +74,8 @@ impl<'a> MediaType<'a> {
         ty: Name<'a>,
         subty: Name<'a>,
         suffix: Option<Name<'a>>,
-        param: Option<&'a [(Name<'a>, Value<'a>); 1]>,
+        params: &'a [(Name<'a>, Value<'a>)],
     ) -> Self {
-        let params: &[(Name, Value)] = if let Some(param) = param { param } else { &[] };
         Self {
             ty,
             subty,
@@ -133,32 +127,24 @@ impl<'a> ReadParams for MediaType<'a> {
 
     fn get_param(&self, key: Name) -> Option<Value> {
         self.params
-            .binary_search_by_key(&key, |(key, _)| *key)
-            .ok()
-            .map(|index| self.params[index].1)
+            .iter()
+            .rev()
+            .find(|&&param| key == param.0)
+            .map(|&(_, value)| value)
     }
 }
 
 impl<'a> WriteParams<'a> for MediaType<'a> {
-    fn set_param<'k: 'a, 'v: 'a>(&mut self, key: Name<'k>, value: Value<'v>) -> Option<Value> {
-        if let Ok(index) = self
-            .params
-            .binary_search_by_key(&Name::new_unchecked(key.as_str()), |(key, _)| *key)
-        {
-            Some(mem::replace(&mut self.params.to_mut()[index].1, value))
-        } else {
-            let params = self.params.to_mut();
-            params.push((key, value));
-            params.sort_unstable_by_key(|&(key, _)| key);
-            None
-        }
+    fn set_param<'k: 'a, 'v: 'a>(&mut self, key: Name<'k>, value: Value<'v>) {
+        self.remove_params(key);
+        self.params.to_mut().push((key, value));
     }
 
-    fn remove_param(&mut self, key: Name) -> Option<Value> {
-        self.params
-            .binary_search_by_key(&key, |(key, _)| *key)
-            .ok()
-            .map(|index| self.params.to_mut().remove(index).1)
+    fn remove_params(&mut self, key: Name) {
+        let key_exists = self.params.iter().any(|&param| key == param.0);
+        if key_exists {
+            self.params.to_mut().retain(|&param| key != param.0);
+        }
     }
 
     fn clear_params(&mut self) {
@@ -242,15 +228,15 @@ mod tests {
     fn to_string() {
         assert_eq!(MediaType::new(TEXT, PLAIN).to_string(), "text/plain");
         assert_eq!(
-            MediaType::from_parts(IMAGE, SVG, Some(XML), None).to_string(),
+            MediaType::from_parts(IMAGE, SVG, Some(XML), &[]).to_string(),
             "image/svg+xml"
         );
         assert_eq!(
-            MediaType::from_parts(TEXT, PLAIN, None, Some(&[(CHARSET, UTF_8)])).to_string(),
+            MediaType::from_parts(TEXT, PLAIN, None, &[(CHARSET, UTF_8)]).to_string(),
             "text/plain; charset=UTF-8"
         );
         assert_eq!(
-            MediaType::from_parts(IMAGE, SVG, Some(XML), Some(&[(CHARSET, UTF_8)])).to_string(),
+            MediaType::from_parts(IMAGE, SVG, Some(XML), &[(CHARSET, UTF_8)]).to_string(),
             "image/svg+xml; charset=UTF-8"
         );
     }
@@ -259,48 +245,44 @@ mod tests {
     fn get_param() {
         assert_eq!(MediaType::new(TEXT, PLAIN).get_param(CHARSET), None);
         assert_eq!(
-            MediaType::from_parts(TEXT, PLAIN, None, Some(&[(CHARSET, UTF_8)])).get_param(CHARSET),
+            MediaType::from_parts(TEXT, PLAIN, None, &[(CHARSET, UTF_8)]).get_param(CHARSET),
             Some(UTF_8)
         );
         assert_eq!(
-            MediaType::parse("image/svg+xml; charset=UTF-8; HELLO=WORLD")
+            MediaType::parse("image/svg+xml; charset=UTF-8; HELLO=WORLD; HELLO=world")
                 .unwrap()
                 .get_param(Name::new("hello").unwrap()),
-            Some(Value::new("WORLD").unwrap())
+            Some(Value::new("world").unwrap())
         );
     }
 
     #[test]
     fn set_param() {
-        let mut media_type = MediaType::from_parts(TEXT, PLAIN, None, Some(&[(CHARSET, UTF_8)]));
+        let mut media_type = MediaType::from_parts(TEXT, PLAIN, None, &[(CHARSET, UTF_8)]);
         let lower_utf8 = Value::new("utf-8").unwrap();
-        assert_eq!(media_type.set_param(CHARSET, lower_utf8), Some(UTF_8));
+        media_type.set_param(CHARSET, lower_utf8);
         assert_eq!(media_type.to_string(), "text/plain; charset=utf-8");
 
         let alice = Name::new("ALICE").unwrap();
         let bob = Value::new("bob").unwrap();
-        assert_eq!(media_type.set_param(alice, bob), None);
+        media_type.set_param(alice, bob);
+        media_type.set_param(alice, bob);
+
         assert_eq!(
             media_type.to_string(),
-            "text/plain; ALICE=bob; charset=utf-8"
+            "text/plain; charset=utf-8; ALICE=bob"
         );
     }
 
     #[test]
-    fn remove_param() {
-        assert_eq!(MediaType::new(TEXT, PLAIN).remove_param(CHARSET), None);
-
-        let mut media_type = MediaType::from_parts(TEXT, PLAIN, None, Some(&[(CHARSET, UTF_8)]));
-        assert_eq!(media_type.remove_param(CHARSET), Some(UTF_8));
-        assert_eq!(media_type.remove_param(CHARSET), None);
+    fn remove_params() {
+        let mut media_type = MediaType::from_parts(TEXT, PLAIN, None, &[(CHARSET, UTF_8)]);
+        media_type.remove_params(CHARSET);
         assert_eq!(media_type.to_string(), "text/plain");
 
-        let mut media_type = MediaType::parse("image/svg+xml; charset=UTF-8; HELLO=WORLD").unwrap();
-        assert_eq!(
-            media_type.remove_param(Name::new("hello").unwrap()),
-            Some(Value::new("WORLD").unwrap())
-        );
-        assert_eq!(media_type.remove_param(Name::new("hello").unwrap()), None);
+        let mut media_type =
+            MediaType::parse("image/svg+xml; hello=WORLD; charset=UTF-8; HELLO=WORLD").unwrap();
+        media_type.remove_params(Name::new("hello").unwrap());
         assert_eq!(media_type.to_string(), "image/svg+xml; charset=UTF-8");
     }
 
@@ -323,7 +305,7 @@ mod tests {
         );
         assert_eq!(
             MediaType::parse("image/svg+xml; hello=WORLD; charset=UTF-8").unwrap(),
-            MediaType::parse("IMAGE/SVG+XML; CHARSET=UTF-8; HELLO=WORLD").unwrap()
+            MediaType::parse("IMAGE/SVG+XML; HELLO=WORLD; CHARSET=UTF-8").unwrap()
         );
     }
 }

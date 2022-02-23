@@ -80,17 +80,6 @@ impl Indices {
                 *v += params_start;
             }
         }
-        params.sort_unstable_by_key(|&[start, end, _, _]| {
-            Name::new_unchecked(&s[start as usize..end as usize])
-        });
-
-        for window in params.windows(2) {
-            let key_a = Name::new_unchecked(&s[window[0][0] as usize..window[0][1] as usize]);
-            let key_b = Name::new_unchecked(&s[window[1][0] as usize..window[1][1] as usize]);
-            if key_a == key_b {
-                return Err(MediaTypeError::DuplicateParamKeys);
-            }
-        }
 
         Ok((
             Self {
@@ -301,10 +290,6 @@ mod tests {
         assert_eq!(
             parse_to_string("text/plain;;;"),
             Err(MediaTypeError::InvalidParams)
-        );
-        assert_eq!(
-            parse_to_string("text/plain; charset=UTF-8; charset=UTF-8"),
-            Err(MediaTypeError::DuplicateParamKeys)
         );
         assert_eq!(
             parse_to_string("text/plain; charset=\"UTF-8"),
