@@ -81,6 +81,10 @@ impl Indices {
             }
         }
 
+        params.sort_by_key(|&[start, end, _, _]| {
+            Name::new_unchecked(&s[start as usize..end as usize])
+        });
+
         Ok((
             Self {
                 ty: NonZeroU8::new(ty.len() as _).unwrap(),

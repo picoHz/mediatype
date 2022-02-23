@@ -137,7 +137,9 @@ impl<'a> ReadParams for MediaType<'a> {
 impl<'a> WriteParams<'a> for MediaType<'a> {
     fn set_param<'k: 'a, 'v: 'a>(&mut self, key: Name<'k>, value: Value<'v>) {
         self.remove_params(key);
-        self.params.to_mut().push((key, value));
+        let params = self.params.to_mut();
+        params.push((key, value));
+        params.sort_by_key(|&(key, _)| key);
     }
 
     fn remove_params(&mut self, key: Name) {
@@ -270,7 +272,7 @@ mod tests {
 
         assert_eq!(
             media_type.to_string(),
-            "text/plain; charset=utf-8; ALICE=bob"
+            "text/plain; ALICE=bob; charset=utf-8"
         );
     }
 
