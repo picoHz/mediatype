@@ -90,6 +90,20 @@ impl<'a> MediaType<'a> {
         }
     }
 
+    pub(crate) const fn from_parts_unchecked(
+        ty: Name<'a>,
+        subty: Name<'a>,
+        suffix: Option<Name<'a>>,
+        params: Cow<'a, [(Name<'a>, Value<'a>)]>,
+    ) -> Self {
+        Self {
+            ty,
+            subty,
+            suffix,
+            params,
+        }
+    }
+
     /// Constructs a `MediaType` from `str` without copying the string.
     pub fn parse<'s: 'a>(s: &'s str) -> Result<Self, MediaTypeError> {
         let (indices, _) = Indices::parse(s)?;

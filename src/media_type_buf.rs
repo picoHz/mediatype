@@ -1,5 +1,6 @@
 use super::{error::*, media_type::*, name::*, params::*, parse::*, value::*};
 use std::{
+    borrow::Cow,
     cmp::Ordering,
     fmt,
     hash::{Hash, Hasher},
@@ -132,7 +133,13 @@ impl MediaTypeBuf {
 
     /// Constructs a `MediaType` from `self`.
     pub fn to_ref(&self) -> MediaType {
-        MediaType::parse(self.as_str()).unwrap()
+        let params = self.params().collect::<Vec<_>>();
+        let params = if params.is_empty() {
+            Cow::Borrowed(&[][..])
+        } else {
+            Cow::Owned(params)
+        };
+        MediaType::from_parts_unchecked(self.ty(), self.subty(), self.suffix(), params)
     }
 }
 
