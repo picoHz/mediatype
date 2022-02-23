@@ -14,9 +14,9 @@ use std::{
 /// let text_plain: MediaTypeBuf = "text/plain; charset=UTF-8".parse().unwrap();
 /// assert_eq!(text_plain.get_param(CHARSET).unwrap(), UTF_8);
 ///
-/// let mut text_plain: MediaType = text_plain.to_ref();
-/// text_plain.subty = MARKDOWN;
-/// assert_eq!(text_plain.to_string(), "text/markdown; charset=UTF-8");
+/// let mut text_markdown: MediaType = text_plain.to_ref();
+/// text_markdown.subty = MARKDOWN;
+/// assert_eq!(text_markdown.to_string(), "text/markdown; charset=UTF-8");
 /// ```
 #[derive(Debug, Clone)]
 pub struct MediaTypeBuf {

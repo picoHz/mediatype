@@ -1,4 +1,4 @@
-//! # About
+//! # Overview
 //!
 //! This crate provides two MediaType structs: [`MediaType`] and [`MediaTypeBuf`].
 //!
