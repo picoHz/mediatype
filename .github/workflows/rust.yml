@@ -26,8 +26,6 @@ jobs:
         key: ${{ runner.os }}-stable-cargo-${{ hashFiles('**/Cargo.lock') }}
     - name: Run clippy
       run: cargo clippy --all-features --verbose
-    - name: Run fmt
-      run: cargo fmt --check --verbose
     - name: Build
       run: cargo build --all-features --verbose
     - name: Run tests
