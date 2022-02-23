@@ -136,7 +136,7 @@ pub fn is_restricted_str(s: &str) -> bool {
     s.chars().all(is_restricted_char)
 }
 
-fn is_restricted_char(c: char) -> bool {
+pub fn is_restricted_char(c: char) -> bool {
     c.is_alphanumeric()
         || matches!(
             c,

@@ -4,6 +4,7 @@ use std::{
     cmp::Ordering,
     fmt,
     hash::{Hash, Hasher},
+    iter,
 };
 
 /// A media-type parameter value.
@@ -74,6 +75,36 @@ impl<'a> Value<'a> {
             }
         } else {
             Cow::Borrowed(self.0)
+        }
+    }
+
+    /// Generates a quoted string if necessary.
+    ///
+    /// ```
+    /// # use mediatype::Value;
+    /// assert_eq!(Value::quote("UTF-8"), "UTF-8");
+    /// assert_eq!(Value::quote("Hello world!"), "\"Hello world!\"");
+    /// assert_eq!(
+    ///     Value::quote(r#" "What's wrong?" "#),
+    ///     "\" \\\"What's wrong\\?\\\" \""
+    /// );
+    /// ```
+    pub fn quote(s: &str) -> Cow<'_, str> {
+        if is_restricted_str(s) {
+            Cow::Borrowed(s)
+        } else {
+            let inner = s
+                .chars()
+                .map(|c| {
+                    if is_restricted_char(c) || c == ' ' {
+                        vec![c]
+                    } else {
+                        vec!['\\', c]
+                    }
+                })
+                .flatten();
+            let quoted = iter::once('"').chain(inner).chain(iter::once('"'));
+            Cow::Owned(quoted.collect())
         }
     }
 
@@ -195,5 +226,11 @@ mod tests {
         assert_eq!(Value::new("\"\\a\\\\\"").unwrap().unquoted_str(), "a\\");
         assert_eq!(Value::new("\"\\\"\"").unwrap().unquoted_str(), "\"");
         assert_eq!(Value::new("\"\\a\\b\\c\"").unwrap().unquoted_str(), "abc");
+        assert_eq!(
+            Value::new("\" \\\"What's wrong\\?\\\" \"")
+                .unwrap()
+                .unquoted_str(),
+            r#" "What's wrong?" "#
+        );
     }
 }
