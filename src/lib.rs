@@ -1,5 +1,3 @@
-//! # Overview
-//!
 //! This crate provides two MediaType structs: [`MediaType`] and [`MediaTypeBuf`].
 //!
 //! - [`MediaType`] does not copy data during parsing
@@ -36,8 +34,8 @@
 //! assert_eq!(lower.as_str(), "text/plain; charset=UTF-8");
 //! assert_eq!(upper.as_str(), "TEXT/PLAIN; CHARSET=UTF-8");
 //! assert_eq!(lower, upper);
-//! assert_eq!(lower.ty(), "TEXT");
-//! assert_eq!(upper.subty(), "plain");
+//! assert_eq!(lower.ty(), "Text");
+//! assert_eq!(upper.subty(), "Plain");
 //! ```
 
 #![forbid(unsafe_code)]
