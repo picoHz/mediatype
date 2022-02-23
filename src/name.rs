@@ -70,8 +70,9 @@ impl<'a> PartialOrd for Name<'a> {
 impl<'a> Ord for Name<'a> {
     fn cmp(&self, other: &Self) -> Ordering {
         self.0
-            .to_ascii_lowercase()
-            .cmp(&other.as_ref().to_ascii_lowercase())
+            .chars()
+            .map(|c| c.to_ascii_lowercase())
+            .cmp(other.0.chars().map(|c| c.to_ascii_lowercase()))
     }
 }
 
@@ -113,7 +114,12 @@ impl<'a> PartialEq<str> for Name<'a> {
 
 impl<'a> PartialOrd<str> for Name<'a> {
     fn partial_cmp(&self, other: &str) -> Option<Ordering> {
-        Some(self.0.to_ascii_lowercase().cmp(&other.to_ascii_lowercase()))
+        Some(
+            self.0
+                .chars()
+                .map(|c| c.to_ascii_lowercase())
+                .cmp(other.chars().map(|c| c.to_ascii_lowercase())),
+        )
     }
 }
 
