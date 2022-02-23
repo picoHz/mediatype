@@ -94,15 +94,13 @@ impl<'a> Value<'a> {
             Cow::Borrowed(s)
         } else {
             let inner = s
-                .chars()
-                .map(|c| {
+                .chars().flat_map(|c| {
                     if is_restricted_char(c) || c == ' ' {
                         vec![c]
                     } else {
                         vec!['\\', c]
                     }
-                })
-                .flatten();
+                });
             let quoted = iter::once('"').chain(inner).chain(iter::once('"'));
             Cow::Owned(quoted.collect())
         }
