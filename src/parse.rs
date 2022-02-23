@@ -88,7 +88,7 @@ impl Indices {
             let key_a = Name::new_unchecked(&s[window[0][0] as usize..window[0][1] as usize]);
             let key_b = Name::new_unchecked(&s[window[1][0] as usize..window[1][1] as usize]);
             if key_a == key_b {
-                return Err(MediaTypeError::DuplicatedParamKeys);
+                return Err(MediaTypeError::DuplicateParamKeys);
             }
         }
 
@@ -304,7 +304,7 @@ mod tests {
         );
         assert_eq!(
             parse_to_string("text/plain; charset=UTF-8; charset=UTF-8"),
-            Err(MediaTypeError::DuplicatedParamKeys)
+            Err(MediaTypeError::DuplicateParamKeys)
         );
         assert_eq!(
             parse_to_string("text/plain; charset=\"UTF-8"),

@@ -17,7 +17,7 @@ pub enum MediaTypeError {
     /// An invalid parameter value is detected.
     InvalidParamValue,
     /// Two or more parameter keys have the same name.
-    DuplicatedParamKeys,
+    DuplicateParamKeys,
 }
 
 impl fmt::Display for MediaTypeError {
@@ -29,7 +29,7 @@ impl fmt::Display for MediaTypeError {
             Self::InvalidParams => "Invalid params",
             Self::InvalidParamKey => "Invalid param key",
             Self::InvalidParamValue => "Invalid param value",
-            Self::DuplicatedParamKeys => "Duplicated param keys",
+            Self::DuplicateParamKeys => "Duplicate param keys",
         };
         f.write_str(msg)
     }
