@@ -16,7 +16,7 @@
 //! assert_eq!(text_plain, TEXT_PLAIN);
 //! ```
 //! 
-//! # Case sensitivity
+//! # Letter case handling
 //!
 //! [`MediaType`] and [`MediaTypeBuf`] preserve the original string's letter case.
 //! Comparisons for [`MediaType`], [`MediaTypeBuf`] and [`Name`] are case-insensitive
