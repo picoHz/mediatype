@@ -11,18 +11,87 @@ MIME Media-type parsing for Rust
 
 </div>
 
-This crate provides two MediaType structs: 
-[`MediaType`](https://docs.rs/mediatype/latest/mediatype/struct.MediaType.html) and 
-[`MediaTypeBuf`](https://docs.rs/mediatype/latest/mediatype/struct.MediaTypeBuf.html).
+- [Parsing](#parsing)
+- [Construction](#construction)
+- [Parameters](#parameters)
+  - [Case Sensitivity](#case-sensitivity)
+  - [Duplicate Parameter Names](#duplicate-parameter-names)
+  - [Quoted String](#mutation)
+- [Mutation](#mutation)
+- [Owned Type](#owned-type)
 
-## [`MediaType`](https://docs.rs/mediatype/latest/mediatype/struct.MediaType.html) 
-
-This does not copy data during parsing and borrows the original string. 
-It is also const-constructible.
+## Parsing
 
 ```rust
-use mediatype::{names::*, MediaType, Value};
+let text = "text/plain; charset=UTF-8";
+let text_plain = MediaType::parse(text).unwrap();
+```
 
+## Construction
+
+`MediaType` is const-construtible: it can be defained as a constant.
+
+Predefind names and values are defined in [`names`](https://docs.rs/mediatype/latest/mediatype/names/index.html) and [`values`](https://docs.rs/mediatype/latest/mediatype/values/index.html) modules.
+
+```rust
+use mediatype::{names::*, values::*, MediaType};
+
+const TEXT_PLAIN: MediaType = MediaType::new(TEXT, PLAIN);
+const IMAGE_SVG: MediaType = MediaType::from_parts(TEXT, PLAIN, Some(XML), &[(CHARSET, UTF_8)]);
+```
+
+## Parameters
+
+### Case Sensitivity
+
+Comparisons are case-insensitive except parameter values.
+
+```rust
+let text_plain_lower = MediaType::parse("text/plain; charset=UTF-8").unwrap();
+let text_plain_upper = MediaType::parse("TEXT/PLAIN; CHARSET=UTF-8").unwrap();
+
+assert_eq!(text_plain_lower, text_plain_upper);
+assert_eq!(text_plain_lower.ty(), "Text");
+assert_eq!(text_plain_upper.subty(), "Plain");
+assert!(text_plain_lower != MediaType::parse("text/plain; charset=utf-8").unwrap());
+```
+
+### Duplicate Parameter Names
+
+The parser does not report duplicate parameter names as an error, but recognizes only the last value.
+
+```rust
+let text_plain = MediaType::parse("text/plain; charset=US-ASCII; charset=UTF-8").unwrap();
+
+assert_eq!(text_plain.to_stirng(), "text/plain; charset=US-ASCII; charset=UTF-8");
+assert_eq!(text_plain.get(CHARSET), Some(UTF_8));
+assert_eq!(text_plain, MediaType::parse("text/plain; charset=UTF-8").unwrap());
+```
+
+### Quoted String
+
+```rust
+let text_plain = MediaType::parse("text/plain; message=\"Hello world!\"").unwrap();
+let message = text_plain.get_param(Name::new("message").unwrap()).unwrap();
+
+assert_eq!(message, "Hello world!");
+assert_eq!(message.as_str(), "\"Hello world!\"");
+assert_eq!(message.unquoted_str(), "Hello world!");
+```
+
+```rust
+let mut text_plain = MediaType::parse("text/plain").unwrap();
+
+let quoted = Value::quote("Hello world!");
+let value = Value::new(&quoted).unwrap();
+text_plain.set_param(Name::new("message").unwrap(), value);
+
+assert_eq!(text_plain.to_string(), "text/plain; message=\"Hello world!\"");
+```
+
+## Mutation
+
+```rust
 let mut multipart = MediaType::new(MULTIPART, FORM_DATA);
 
 let boundary = Value::new("dyEV84n7XNJ").unwrap();
@@ -37,15 +106,11 @@ assert_eq!(
     multipart.to_string(),
     "multipart/related; boundary=dyEV84n7XNJ"
 );
-
-const IMAGE_SVG: MediaType = MediaType::from_parts(IMAGE, SVG, Some(XML), &[]);
-let svg = MediaType::parse("IMAGE/SVG+XML").unwrap();
-assert_eq!(svg, IMAGE_SVG);
 ```
 
-## [`MediaTypeBuf`](https://docs.rs/mediatype/latest/mediatype/struct.MediaTypeBuf.html) 
-
-This is an owned and immutable version of `MediaType`.
+## Owned Type
+ 
+[`MediaTypeBuf`](https://docs.rs/mediatype/latest/mediatype/struct.MediaTypeBuf.html) is an owned and immutable version of `MediaType`.
 
 ```rust
 use mediatype::{names::*, values::*, MediaType, MediaTypeBuf};
