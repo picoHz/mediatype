@@ -36,7 +36,8 @@ pub struct MediaType<'a> {
     /// Optional suffix.
     pub suffix: Option<Name<'a>>,
 
-    params: Cow<'a, [(Name<'a>, Value<'a>)]>,
+    /// Parameters.
+    pub params: Cow<'a, [(Name<'a>, Value<'a>)]>,
 }
 
 impl<'a> MediaType<'a> {
