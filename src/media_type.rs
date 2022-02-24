@@ -130,7 +130,7 @@ impl<'a> ReadParams for MediaType<'a> {
 }
 
 impl<'a> WriteParams<'a> for MediaType<'a> {
-    fn set_param<'k: 'a, 'v: 'a>(&mut self, name: Name<'k>, value: Value<'v>) {
+    fn set_param<'n: 'a, 'v: 'a>(&mut self, name: Name<'n>, value: Value<'v>) {
         self.remove_params(name);
         let params = self.params.to_mut();
         params.push((name, value));

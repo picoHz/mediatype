@@ -96,7 +96,7 @@ pub trait WriteParams<'a>: ReadParams {
     ///     "text/plain; format=fixed; charset=UTF-8"
     /// );
     /// ```
-    fn set_param<'k: 'a, 'v: 'a>(&mut self, name: Name<'k>, value: Value<'v>);
+    fn set_param<'n: 'a, 'v: 'a>(&mut self, name: Name<'n>, value: Value<'v>);
 
     /// Removes all parameters with the name.
     fn remove_params(&mut self, name: Name);
