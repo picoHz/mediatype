@@ -1,11 +1,5 @@
 use super::{error::*, media_type::*, name::*, params::*, parse::*, value::*};
-use std::{
-    borrow::Cow,
-    collections::HashMap,
-    fmt,
-    hash::{Hash, Hasher},
-    str::FromStr,
-};
+use std::{borrow::Cow, collections::HashMap, fmt, str::FromStr};
 
 /// An owned and immutable MediaType.
 ///
@@ -202,17 +196,6 @@ impl PartialEq for MediaTypeBuf {
 }
 
 impl Eq for MediaTypeBuf {}
-
-impl Hash for MediaTypeBuf {
-    fn hash<H: Hasher>(&self, state: &mut H) {
-        self.ty().hash(state);
-        self.subty().hash(state);
-        self.suffix().hash(state);
-        for param in self.params() {
-            param.hash(state);
-        }
-    }
-}
 
 impl PartialEq<MediaType<'_>> for MediaTypeBuf {
     fn eq(&self, other: &MediaType) -> bool {
