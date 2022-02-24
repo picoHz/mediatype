@@ -1,7 +1,6 @@
 use super::{error::*, media_type::*, name::*, params::*, parse::*, value::*};
 use std::{
     borrow::Cow,
-    cmp::Ordering,
     fmt,
     hash::{Hash, Hasher},
     str::FromStr,
@@ -203,30 +202,6 @@ impl PartialEq for MediaTypeBuf {
 
 impl Eq for MediaTypeBuf {}
 
-impl PartialOrd for MediaTypeBuf {
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        Some(self.cmp(other))
-    }
-}
-
-impl Ord for MediaTypeBuf {
-    fn cmp(&self, other: &Self) -> Ordering {
-        match self.ty().cmp(&other.ty()) {
-            Ordering::Equal => (),
-            ne => return ne,
-        }
-        match self.subty().cmp(&other.subty()) {
-            Ordering::Equal => (),
-            ne => return ne,
-        }
-        match self.suffix().cmp(&other.suffix()) {
-            Ordering::Equal => (),
-            ne => return ne,
-        }
-        self.params().cmp(other.params())
-    }
-}
-
 impl Hash for MediaTypeBuf {
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.ty().hash(state);
@@ -244,24 +219,6 @@ impl PartialEq<MediaType<'_>> for MediaTypeBuf {
             && self.subty() == other.subty
             && self.suffix() == other.suffix
             && self.params().eq(other.params())
-    }
-}
-
-impl PartialOrd<MediaType<'_>> for MediaTypeBuf {
-    fn partial_cmp(&self, other: &MediaType) -> Option<Ordering> {
-        match self.ty().partial_cmp(&other.ty) {
-            Some(Ordering::Equal) => (),
-            ne => return ne,
-        }
-        match self.subty().partial_cmp(&other.subty) {
-            Some(Ordering::Equal) => (),
-            ne => return ne,
-        }
-        match self.suffix().partial_cmp(&other.suffix) {
-            Some(Ordering::Equal) => (),
-            ne => return ne,
-        }
-        self.params().partial_cmp(other.params())
     }
 }
 

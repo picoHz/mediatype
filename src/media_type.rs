@@ -1,7 +1,6 @@
 use super::{error::*, media_type_buf::*, name::*, params::*, parse::*, value::*};
 use std::{
     borrow::Cow,
-    cmp::Ordering,
     fmt,
     hash::{Hash, Hasher},
 };
@@ -185,30 +184,6 @@ impl<'a> PartialEq for MediaType<'a> {
 }
 
 impl<'a> Eq for MediaType<'a> {}
-
-impl<'a> PartialOrd for MediaType<'a> {
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        Some(self.cmp(other))
-    }
-}
-
-impl<'a> Ord for MediaType<'a> {
-    fn cmp(&self, other: &Self) -> Ordering {
-        match self.ty.cmp(&other.ty) {
-            Ordering::Equal => (),
-            ne => return ne,
-        }
-        match self.subty.cmp(&other.subty) {
-            Ordering::Equal => (),
-            ne => return ne,
-        }
-        match self.suffix.cmp(&other.suffix) {
-            Ordering::Equal => (),
-            ne => return ne,
-        }
-        self.params().cmp(other.params())
-    }
-}
 
 impl<'a> Hash for MediaType<'a> {
     fn hash<H: Hasher>(&self, state: &mut H) {
