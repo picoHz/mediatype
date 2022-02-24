@@ -136,6 +136,7 @@ davmount
 dca-rft
 DCD
 dec-dx
+delsp
 der
 dialog-info
 dicom
@@ -215,6 +216,7 @@ font-sfnt
 font-tdpfr
 font-woff
 form-data
+format
 framework-attributes
 fwdred
 g3fax

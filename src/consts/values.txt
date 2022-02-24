@@ -1,6 +1,8 @@
 Big5
 EUC-JP
 EUC-KR
+fixed
+flowed
 GB2312
 ISO-2022-JP
 ISO-2022-JP-2
@@ -20,6 +22,8 @@ ISO-8859-8-E
 ISO-8859-8-I
 ISO-8859-9
 KOI8-R
+no
 Shift_JIS
 US-ASCII
 UTF-8
+yes
