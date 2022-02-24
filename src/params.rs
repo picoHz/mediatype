@@ -73,6 +73,8 @@ pub trait ReadParams {
     fn params(&self) -> Params;
 
     /// Gets the parameter value by its key.
+    ///
+    /// If the same key appears more than once, returns the last value.
     fn get_param(&self, key: Name) -> Option<Value>;
 }
 
@@ -80,8 +82,20 @@ pub trait ReadParams {
 pub trait WriteParams<'a>: ReadParams {
     /// Sets a parameter value.
     ///
-    /// If the parameters with the key already exist,
-    /// they will be replaced with a new value.
+    /// If the parameters with the key already exist, they will be removed.
+    ///
+    /// ```
+    /// # use mediatype::{names::*, values::*, MediaType, WriteParams};
+    /// let madia_type = "text/plain; charset=UTF-8; charset=US-ASCII; format=fixed";
+    ///
+    /// let mut text_plain = MediaType::parse(madia_type).unwrap();
+    /// text_plain.set_param(CHARSET, UTF_8);
+    ///
+    /// assert_eq!(
+    ///     text_plain.to_string(),
+    ///     "text/plain; format=fixed; charset=UTF-8"
+    /// );
+    /// ```
     fn set_param<'k: 'a, 'v: 'a>(&mut self, key: Name<'k>, value: Value<'v>);
 
     /// Removes all parameters with the key.

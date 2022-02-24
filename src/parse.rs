@@ -81,27 +81,12 @@ impl Indices {
             }
         }
 
-        params.sort_by_key(|&[start, end, _, _]| Name::new_unchecked(&s[start..end]));
-
-        let mut dedup_params: Vec<[usize; 4]> = Vec::with_capacity(params.len());
-        for param in params {
-            let key = Name::new_unchecked(&s[param[0]..param[1]]);
-            let last_key = dedup_params
-                .last()
-                .map(|&[ks, ke, _, _]| Name::new_unchecked(&s[ks as usize..ke as usize]));
-            if last_key == Some(key) {
-                *dedup_params.last_mut().unwrap() = param;
-            } else {
-                dedup_params.push(param);
-            }
-        }
-
         Ok((
             Self {
                 ty: NonZeroU8::new(ty.len() as _).unwrap(),
                 subty: NonZeroU8::new(subty.len() as _).unwrap(),
                 suffix: suffix.len() as _,
-                params: dedup_params.into_boxed_slice(),
+                params: params.into_boxed_slice(),
             },
             params_start + params_len,
         ))
@@ -254,12 +239,12 @@ mod tests {
             Ok("image/svg+xml; charset=UTF-8".into())
         );
         assert_eq!(
-            parse_to_string("image/svg+xml; charset=UTF-6; charset=UTF-7; charset=UTF-8;"),
-            Ok("image/svg+xml; charset=UTF-8".into())
+            parse_to_string("image/svg+xml; charset=US-ASCII; charset=UTF-8;"),
+            Ok("image/svg+xml; charset=US-ASCII; charset=UTF-8".into())
         );
         assert_eq!(
-            parse_to_string("image/svg+xml; charset=UTF-7; hello=WORLD; charset=UTF-8;"),
-            Ok("image/svg+xml; charset=UTF-8; hello=WORLD".into())
+            parse_to_string("image/svg+xml; charset=US-ASCII; hello=WORLD; charset=UTF-8;"),
+            Ok("image/svg+xml; charset=US-ASCII; hello=WORLD; charset=UTF-8".into())
         );
         assert_eq!(
             parse_to_string("image/svg+xml    ; charset=UTF-8   "),
