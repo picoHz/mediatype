@@ -1,6 +1,7 @@
 use super::{error::*, media_type::*, name::*, params::*, parse::*, value::*};
 use std::{
     borrow::Cow,
+    collections::HashMap,
     fmt,
     hash::{Hash, Hasher},
     str::FromStr,
@@ -196,7 +197,7 @@ impl PartialEq for MediaTypeBuf {
         self.ty() == other.ty()
             && self.subty() == other.subty()
             && self.suffix() == other.suffix()
-            && self.params().eq(other.params())
+            && self.params().collect::<HashMap<_, _>>() == other.params().collect::<HashMap<_, _>>()
     }
 }
 
@@ -218,7 +219,7 @@ impl PartialEq<MediaType<'_>> for MediaTypeBuf {
         self.ty() == other.ty
             && self.subty() == other.subty
             && self.suffix() == other.suffix
-            && self.params().eq(other.params())
+            && self.params().collect::<HashMap<_, _>>() == other.params().collect::<HashMap<_, _>>()
     }
 }
 
@@ -322,6 +323,15 @@ mod tests {
         assert_eq!(
             MediaTypeBuf::from_str("image/svg+xml; hello=WORLD; charset=UTF-8").unwrap(),
             MediaTypeBuf::from_str("IMAGE/SVG+XML; HELLO=WORLD; CHARSET=UTF-8").unwrap()
+        );
+        assert_eq!(
+            MediaTypeBuf::from_str("image/svg+xml; charset=UTF-8").unwrap(),
+            MediaType::from_parts(
+                IMAGE,
+                SVG,
+                Some(XML),
+                &[(CHARSET, US_ASCII), (CHARSET, UTF_8)]
+            ),
         );
     }
 }

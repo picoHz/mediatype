@@ -1,6 +1,7 @@
 use super::{error::*, media_type_buf::*, name::*, params::*, parse::*, value::*};
 use std::{
     borrow::Cow,
+    collections::HashMap,
     fmt,
     hash::{Hash, Hasher},
 };
@@ -179,7 +180,7 @@ impl<'a> PartialEq for MediaType<'a> {
         self.ty == other.ty
             && self.subty == other.subty
             && self.suffix == other.suffix
-            && self.params().eq(other.params())
+            && self.params().collect::<HashMap<_, _>>() == other.params().collect::<HashMap<_, _>>()
     }
 }
 
@@ -196,10 +197,20 @@ impl<'a> Hash for MediaType<'a> {
     }
 }
 
+impl<'a> PartialEq<MediaTypeBuf> for MediaType<'a> {
+    fn eq(&self, other: &MediaTypeBuf) -> bool {
+        self.ty == other.ty()
+            && self.subty == other.subty()
+            && self.suffix == other.suffix()
+            && self.params().collect::<HashMap<_, _>>() == other.params().collect::<HashMap<_, _>>()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::{names::*, values::*};
+    use std::str::FromStr;
 
     #[test]
     fn to_string() {
@@ -283,6 +294,15 @@ mod tests {
         assert_eq!(
             MediaType::parse("image/svg+xml; hello=WORLD; charset=UTF-8").unwrap(),
             MediaType::parse("IMAGE/SVG+XML; HELLO=WORLD; CHARSET=UTF-8").unwrap()
+        );
+        assert_eq!(
+            MediaType::from_parts(
+                IMAGE,
+                SVG,
+                Some(XML),
+                &[(CHARSET, US_ASCII), (CHARSET, UTF_8)]
+            ),
+            MediaTypeBuf::from_str("image/svg+xml; charset=UTF-8").unwrap(),
         );
     }
 }
