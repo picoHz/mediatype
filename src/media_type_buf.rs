@@ -31,7 +31,7 @@ impl MediaTypeBuf {
         subty: Name,
         suffix: Option<Name>,
         params: &[(Name, Value)],
-    ) -> Result<Self, MediaTypeError> {
+    ) -> Self {
         use std::fmt::Write;
         let mut s = String::new();
         write!(s, "{}/{}", ty, subty).unwrap();
@@ -41,7 +41,7 @@ impl MediaTypeBuf {
         for (name, value) in params {
             write!(s, "; {}={}", name, value).unwrap();
         }
-        Self::from_string(s)
+        Self::from_string(s).unwrap()
     }
 
     /// Constructs a `MediaTypeBuf` from [`String`].
@@ -227,9 +227,7 @@ mod tests {
     #[test]
     fn from_parts() {
         assert_eq!(
-            MediaTypeBuf::from_parts(IMAGE, SVG, Some(XML), &[(CHARSET, UTF_8)])
-                .unwrap()
-                .to_string(),
+            MediaTypeBuf::from_parts(IMAGE, SVG, Some(XML), &[(CHARSET, UTF_8)]).to_string(),
             "image/svg+xml; charset=UTF-8"
         );
     }
