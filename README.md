@@ -13,24 +13,32 @@ MIME Media-type parsing for Rust
 
 - [Parsing](#parsing)
 - [Construction](#construction)
+- [Mutation](#mutation)
 - [Parameters](#parameters)
   - [Case Sensitivity](#case-sensitivity)
   - [Duplicate Parameter Names](#duplicate-parameter-names)
   - [Quoted String](#mutation)
-- [Mutation](#mutation)
 - [Owned Type](#owned-type)
 
 ## Parsing
 
+`MediaType::parse` runs a zero-copy parsing: A `MediaType` borrows the input string instead of copying it. If you need an owned type, use [`MediaTypeBuf`](#owned-type).
+
 ```rust
-let text = "text/plain; charset=UTF-8";
-let text_plain = MediaType::parse(text).unwrap();
+use mediatype::{names::*, values::*, MediaType};
+
+let madia_type = "image/svg+xml; charset=UTF-8";
+let svg = MediaType::parse(madia_type).unwrap();
+
+assert_eq!(svg.ty, IMAGE);
+assert_eq!(svg.subty, SVG);
+assert_eq!(svg.suffix, Some(XML));
+assert_eq!(svg.get_param(CHARSET), Some(UTF_8));
 ```
 
 ## Construction
 
-`MediaType` is const-construtible: it can be defained as a constant.
-
+`MediaType` is const-construtible. It can be defained as a constant. 
 Predefind names and values are defined in [`names`](https://docs.rs/mediatype/latest/mediatype/names/index.html) and [`values`](https://docs.rs/mediatype/latest/mediatype/values/index.html) modules.
 
 ```rust
@@ -38,6 +46,25 @@ use mediatype::{names::*, values::*, MediaType};
 
 const TEXT_PLAIN: MediaType = MediaType::new(TEXT, PLAIN);
 const IMAGE_SVG: MediaType = MediaType::from_parts(TEXT, PLAIN, Some(XML), &[(CHARSET, UTF_8)]);
+```
+
+## Mutation
+
+```rust
+let mut multipart = MediaType::new(MULTIPART, FORM_DATA);
+
+let boundary = Value::new("dyEV84n7XNJ").unwrap();
+multipart.set_param(BOUNDARY, boundary);
+assert_eq!(
+     multipart.to_string(),
+     "multipart/form-data; boundary=dyEV84n7XNJ"
+);
+
+multipart.subty = RELATED;
+assert_eq!(
+    multipart.to_string(),
+    "multipart/related; boundary=dyEV84n7XNJ"
+);
 ```
 
 ## Parameters
@@ -58,14 +85,24 @@ assert!(text_plain_lower != MediaType::parse("text/plain; charset=utf-8").unwrap
 
 ### Duplicate Parameter Names
 
-The parser does not report duplicate parameter names as an error, but recognizes only the last value.
+The parser does not report duplicate parameter names as an error, but `MediaType` recognizes only the last value.
 
 ```rust
 let text_plain = MediaType::parse("text/plain; charset=US-ASCII; charset=UTF-8").unwrap();
 
-assert_eq!(text_plain.to_stirng(), "text/plain; charset=US-ASCII; charset=UTF-8");
-assert_eq!(text_plain.get(CHARSET), Some(UTF_8));
-assert_eq!(text_plain, MediaType::parse("text/plain; charset=UTF-8").unwrap());
+assert_eq!(
+    text_plain.to_string(),
+    "text/plain; charset=US-ASCII; charset=UTF-8"
+);
+
+// Returns the last charset value.
+assert_eq!(text_plain.get_param(CHARSET), Some(UTF_8));
+
+// Compares the last charset value.
+assert_eq!(
+    text_plain,
+    MediaType::parse("text/plain; charset=UTF-8").unwrap()
+);
 ```
 
 ### Quoted String
@@ -86,25 +123,9 @@ let quoted = Value::quote("Hello world!");
 let value = Value::new(&quoted).unwrap();
 text_plain.set_param(Name::new("message").unwrap(), value);
 
-assert_eq!(text_plain.to_string(), "text/plain; message=\"Hello world!\"");
-```
-
-## Mutation
-
-```rust
-let mut multipart = MediaType::new(MULTIPART, FORM_DATA);
-
-let boundary = Value::new("dyEV84n7XNJ").unwrap();
-multipart.set_param(BOUNDARY, boundary);
 assert_eq!(
-     multipart.to_string(),
-     "multipart/form-data; boundary=dyEV84n7XNJ"
-);
-
-multipart.subty = RELATED;
-assert_eq!(
-    multipart.to_string(),
-    "multipart/related; boundary=dyEV84n7XNJ"
+    text_plain.to_string(),
+    "text/plain; message=\"Hello world!\""
 );
 ```
 
