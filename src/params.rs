@@ -72,17 +72,17 @@ pub trait ReadParams {
     /// Returns the parameters.
     fn params(&self) -> Params;
 
-    /// Gets the parameter value by its key.
+    /// Gets the parameter value by its name.
     ///
-    /// If the same key appears more than once, returns the last value.
-    fn get_param(&self, key: Name) -> Option<Value>;
+    /// If the same name appears more than once, returns the last value.
+    fn get_param(&self, name: Name) -> Option<Value>;
 }
 
 /// A trait for mutating parameter values.
 pub trait WriteParams<'a>: ReadParams {
     /// Sets a parameter value.
     ///
-    /// If the parameters with the key already exist, they will be removed.
+    /// If the parameters with the name already exist, they will be removed.
     ///
     /// ```
     /// # use mediatype::{names::*, values::*, MediaType, WriteParams};
@@ -96,10 +96,10 @@ pub trait WriteParams<'a>: ReadParams {
     ///     "text/plain; format=fixed; charset=UTF-8"
     /// );
     /// ```
-    fn set_param<'k: 'a, 'v: 'a>(&mut self, key: Name<'k>, value: Value<'v>);
+    fn set_param<'k: 'a, 'v: 'a>(&mut self, name: Name<'k>, value: Value<'v>);
 
-    /// Removes all parameters with the key.
-    fn remove_params(&mut self, key: Name);
+    /// Removes all parameters with the name.
+    fn remove_params(&mut self, name: Name);
 
     /// Removes all parameters.
     fn clear_params(&mut self);

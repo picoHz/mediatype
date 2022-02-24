@@ -12,8 +12,8 @@ pub enum MediaTypeError {
     InvalidSuffix,
     /// The parameter syntax is not valid.
     InvalidParams,
-    /// An invalid parameter key is detected.
-    InvalidParamKey,
+    /// An invalid parameter name is detected.
+    InvalidParamName,
     /// An invalid parameter value is detected.
     InvalidParamValue,
 }
@@ -25,7 +25,7 @@ impl fmt::Display for MediaTypeError {
             Self::InvalidSubtypeName => "Invalid subtype name",
             Self::InvalidSuffix => "Invalid suffix",
             Self::InvalidParams => "Invalid params",
-            Self::InvalidParamKey => "Invalid param key",
+            Self::InvalidParamName => "Invalid param name",
             Self::InvalidParamValue => "Invalid param value",
         };
         f.write_str(msg)

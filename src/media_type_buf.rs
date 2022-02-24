@@ -38,8 +38,8 @@ impl MediaTypeBuf {
         if let Some(suffix) = suffix {
             write!(s, "+{}", suffix).unwrap();
         }
-        for (key, value) in params {
-            write!(s, "; {}={}", key, value).unwrap();
+        for (name, value) in params {
+            write!(s, "; {}={}", name, value).unwrap();
         }
         Self::from_string(s)
     }
@@ -118,8 +118,8 @@ impl MediaTypeBuf {
         if let Some(suffix) = self.suffix() {
             write!(s, "+{}", suffix.as_str().to_ascii_lowercase()).unwrap();
         }
-        for (key, value) in self.params() {
-            write!(s, "; {}={}", key.as_str().to_ascii_lowercase(), value).unwrap();
+        for (name, value) in self.params() {
+            write!(s, "; {}={}", name.as_str().to_ascii_lowercase(), value).unwrap();
         }
         s.shrink_to_fit();
         Self::from_string(s).unwrap()
@@ -142,13 +142,13 @@ impl ReadParams for MediaTypeBuf {
         Params::from_indices(&self.data, &self.indices)
     }
 
-    fn get_param(&self, key: Name) -> Option<Value> {
+    fn get_param(&self, name: Name) -> Option<Value> {
         self.indices
             .params()
             .iter()
             .rev()
             .find(|&&[start, end, _, _]| {
-                key == Name::new_unchecked(&self.data[start as usize..end as usize])
+                name == Name::new_unchecked(&self.data[start as usize..end as usize])
             })
             .map(|&[_, _, start, end]| {
                 Value::new_unchecked(&self.data[start as usize..end as usize])
@@ -212,8 +212,8 @@ impl fmt::Display for MediaTypeBuf {
         if let Some(suffix) = self.suffix() {
             write!(f, "+{}", suffix)?;
         }
-        for (key, value) in self.params() {
-            write!(f, "; {}={}", key, value)?;
+        for (name, value) in self.params() {
+            write!(f, "; {}={}", name, value)?;
         }
         Ok(())
     }

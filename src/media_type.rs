@@ -120,26 +120,26 @@ impl<'a> ReadParams for MediaType<'a> {
         Params::from_slice(&self.params)
     }
 
-    fn get_param(&self, key: Name) -> Option<Value> {
+    fn get_param(&self, name: Name) -> Option<Value> {
         self.params
             .iter()
             .rev()
-            .find(|&&param| key == param.0)
+            .find(|&&param| name == param.0)
             .map(|&(_, value)| value)
     }
 }
 
 impl<'a> WriteParams<'a> for MediaType<'a> {
-    fn set_param<'k: 'a, 'v: 'a>(&mut self, key: Name<'k>, value: Value<'v>) {
-        self.remove_params(key);
+    fn set_param<'k: 'a, 'v: 'a>(&mut self, name: Name<'k>, value: Value<'v>) {
+        self.remove_params(name);
         let params = self.params.to_mut();
-        params.push((key, value));
+        params.push((name, value));
     }
 
-    fn remove_params(&mut self, key: Name) {
-        let key_exists = self.params.iter().any(|&param| key == param.0);
+    fn remove_params(&mut self, name: Name) {
+        let key_exists = self.params.iter().any(|&param| name == param.0);
         if key_exists {
-            self.params.to_mut().retain(|&param| key != param.0);
+            self.params.to_mut().retain(|&param| name != param.0);
         }
     }
 
@@ -156,8 +156,8 @@ impl<'a> fmt::Display for MediaType<'a> {
         if let Some(suffix) = self.suffix {
             write!(f, "+{}", suffix)?;
         }
-        for (key, value) in &*self.params {
-            write!(f, "; {}={}", key, value)?;
+        for (name, value) in &*self.params {
+            write!(f, "; {}={}", name, value)?;
         }
         Ok(())
     }

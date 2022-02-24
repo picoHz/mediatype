@@ -142,10 +142,10 @@ fn parse_params(s: &str) -> Result<(Vec<[usize; 4]>, usize), MediaTypeError> {
     let mut offset = 0;
     let mut len = 0;
 
-    while let Some((key, value)) = parse_param(&s[offset..])? {
+    while let Some((name, value)) = parse_param(&s[offset..])? {
         vec.push([
-            offset + key.start,
-            offset + key.end,
+            offset + name.start,
+            offset + name.end,
             offset + value.start,
             offset + value.end,
         ]);
@@ -168,16 +168,16 @@ fn parse_param(s: &str) -> Result<Option<ParamRange>, MediaTypeError> {
         _ => return Err(MediaTypeError::InvalidParams),
     };
 
-    let (key, value) = match right.split_once('=') {
+    let (name, value) = match right.split_once('=') {
         Some(pair) => pair,
         _ => return Err(MediaTypeError::InvalidParams),
     };
 
-    let key_trimmed = key.trim_start_matches(is_ows).len();
-    let key_start = ows.len() + 1 + key.len() - key_trimmed;
+    let key_trimmed = name.trim_start_matches(is_ows).len();
+    let key_start = ows.len() + 1 + name.len() - key_trimmed;
     let key_range = key_start..key_start + key_trimmed;
     if !is_restricted_name(&s[key_range.clone()]) {
-        return Err(MediaTypeError::InvalidParamKey);
+        return Err(MediaTypeError::InvalidParamName);
     }
 
     let value_start = key_range.end + 1;
@@ -309,7 +309,7 @@ mod tests {
         );
         assert_eq!(
             parse_to_string("text/plain; \r\n charset=UTF-8;"),
-            Err(MediaTypeError::InvalidParamKey)
+            Err(MediaTypeError::InvalidParamName)
         );
 
         let long_str = format!("{}/plain", "t".repeat(std::u16::MAX as usize));
