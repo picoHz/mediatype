@@ -75,20 +75,17 @@ pub use value::*;
 /// ```
 #[macro_export]
 macro_rules! media_type {
-    ($topty:ident / $subty:ident) => {
-        $crate::MediaType::new($crate::names::$topty, $crate::names::$subty)
-    };
-    ($topty:ident / $subty:ident $(;$name:ident = $value:ident)*) => {
+    ($ty:ident / $subty:ident $(;$name:ident = $value:ident)*) => {
         $crate::MediaType::from_parts(
-            $crate::names::$topty,
+            $crate::names::$ty,
             $crate::names::$subty,
             None,
             &[$(($crate::names::$name, $crate::values::$value)),*],
         )
     };
-    ($topty:ident / $subty:ident + $suffix:ident $(;$name:ident = $value:ident)*) => {
+    ($ty:ident / $subty:ident + $suffix:ident $(;$name:ident = $value:ident)*) => {
         $crate::MediaType::from_parts(
-            $crate::names::$topty,
+            $crate::names::$ty,
             $crate::names::$subty,
             Some($crate::names::$suffix),
             &[$(($crate::names::$name, $crate::values::$value)),*],
