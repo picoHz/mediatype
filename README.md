@@ -44,10 +44,11 @@ assert_eq!(svg.get_param(CHARSET), Some(UTF_8));
 Predefind names and values are defined in [`names`](https://docs.rs/mediatype/latest/mediatype/names/index.html) and [`values`](https://docs.rs/mediatype/latest/mediatype/values/index.html) modules.
 
 ```rust
-use mediatype::{names::*, values::*, MediaType};
+use mediatype::{names::*, values::*, media_type, MediaType};
 
 const TEXT_PLAIN: MediaType = MediaType::new(TEXT, PLAIN);
 const IMAGE_SVG: MediaType = MediaType::from_parts(TEXT, PLAIN, Some(XML), &[(CHARSET, UTF_8)]);
+const TEXT_MARKDOWN: MediaType = media_type!(TEXT/MARKDOWN; CHARSET=UTF_8);
 ```
 
 ## Parameters

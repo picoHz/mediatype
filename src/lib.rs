@@ -15,7 +15,7 @@
 //!
 //! assert_eq!(text_plain, TEXT_PLAIN);
 //! ```
-//! 
+//!
 //! # Letter case handling
 //!
 //! [`MediaType`] and [`MediaTypeBuf`] preserve the original string's letter case.
@@ -59,3 +59,39 @@ pub use media_type_buf::*;
 pub use name::*;
 pub use params::*;
 pub use value::*;
+
+/// Convenient macro to construct a [`MediaType`].
+///
+/// [`MadiaType`]: ./struct.MediaType.html
+///
+///
+/// ```
+/// # use mediatype::media_type;
+/// assert_eq!(media_type!(TEXT/PLAIN).to_string(), "text/plain");
+/// assert_eq!(
+///     media_type!(IMAGE/SVG+XML; CHARSET=UTF_8).to_string(),
+///     "image/svg+xml; charset=UTF-8"
+/// );
+/// ```
+#[macro_export]
+macro_rules! media_type {
+    ($topty:ident / $subty:ident) => {
+        $crate::MediaType::new($crate::names::$topty, $crate::names::$subty)
+    };
+    ($topty:ident / $subty:ident $(;$name:ident = $value:ident)*) => {
+        $crate::MediaType::from_parts(
+            $crate::names::$topty,
+            $crate::names::$subty,
+            None,
+            &[$(($crate::names::$name, $crate::values::$value)),*],
+        )
+    };
+    ($topty:ident / $subty:ident + $suffix:ident $(;$name:ident = $value:ident)*) => {
+        $crate::MediaType::from_parts(
+            $crate::names::$topty,
+            $crate::names::$subty,
+            Some($crate::names::$suffix),
+            &[$(($crate::names::$name, $crate::values::$value)),*],
+        )
+    };
+}
