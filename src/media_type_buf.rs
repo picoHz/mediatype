@@ -206,6 +206,12 @@ impl PartialEq<MediaType<'_>> for MediaTypeBuf {
     }
 }
 
+impl PartialEq<&MediaType<'_>> for MediaTypeBuf {
+    fn eq(&self, other: &&MediaType) -> bool {
+        self == *other
+    }
+}
+
 impl fmt::Display for MediaTypeBuf {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}/{}", self.ty(), self.subty())?;
