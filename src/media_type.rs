@@ -190,6 +190,12 @@ impl<'a> PartialEq<MediaTypeBuf> for MediaType<'a> {
     }
 }
 
+impl<'a> PartialEq<&MediaTypeBuf> for MediaType<'a> {
+    fn eq(&self, other: &&MediaTypeBuf) -> bool {
+        self == *other
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
