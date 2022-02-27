@@ -47,8 +47,12 @@ Predefind names and values are defined in [`names`](https://docs.rs/mediatype/la
 use mediatype::{names::*, values::*, media_type, MediaType};
 
 const TEXT_PLAIN: MediaType = MediaType::new(TEXT, PLAIN);
-const IMAGE_SVG: MediaType = MediaType::from_parts(TEXT, PLAIN, Some(XML), &[(CHARSET, UTF_8)]);
-const TEXT_MARKDOWN: MediaType = media_type!(TEXT/MARKDOWN; CHARSET=UTF_8);
+
+const IMAGE_SVG: MediaType = 
+  MediaType::from_parts(TEXT, PLAIN, Some(XML), &[(CHARSET, UTF_8)]);
+
+const TEXT_MARKDOWN: MediaType = 
+  media_type!(TEXT/MARKDOWN; CHARSET=UTF_8);
 ```
 
 ## Parameters
@@ -64,7 +68,8 @@ let text_plain_upper = MediaType::parse("TEXT/PLAIN; CHARSET=UTF-8").unwrap();
 assert_eq!(text_plain_lower, text_plain_upper);
 assert_eq!(text_plain_lower.ty(), "Text");
 assert_eq!(text_plain_upper.subty(), "Plain");
-assert!(text_plain_lower != MediaType::parse("text/plain; charset=utf-8").unwrap());
+assert!(text_plain_lower != 
+  MediaType::parse("text/plain; charset=utf-8").unwrap());
 ```
 
 ### Duplicate Parameter Names
@@ -72,7 +77,8 @@ assert!(text_plain_lower != MediaType::parse("text/plain; charset=utf-8").unwrap
 The parser does not report duplicate parameter names as an error, but `MediaType` recognizes only the last value.
 
 ```rust
-let text_plain = MediaType::parse("text/plain; charset=US-ASCII; charset=UTF-8").unwrap();
+let text_plain = MediaType::parse(
+  "text/plain; charset=US-ASCII; charset=UTF-8").unwrap();
 
 assert_eq!(
     text_plain.to_string(),
@@ -118,7 +124,7 @@ mediatype = { version = "...", features = ["serde"] }
 let json = r#"
     [
         "text/plain",
-        "image/svg+xml; charset=UTF-8",
+        "image/svg+xml; charset=UTF-8"
     ]
 "#;
 
