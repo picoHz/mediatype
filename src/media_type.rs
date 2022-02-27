@@ -114,6 +114,22 @@ impl<'a> MediaType<'a> {
             params: Cow::Owned(params),
         })
     }
+
+    /// Returns a [`MediaType`] without parameters.
+    ///
+    /// ```
+    /// # use mediatype::{names::*, values::*, MediaType};
+    /// const IMAGE_SVG: MediaType = MediaType::from_parts(IMAGE, SVG, Some(XML), &[(CHARSET, UTF_8)]);
+    /// assert_eq!(
+    ///     IMAGE_SVG.essence(),
+    ///     MediaType::parse("image/svg+xml").unwrap()
+    /// );
+    /// ```
+    ///
+    /// [`MadiaType`]: ./struct.MediaType.html
+    pub fn essence(&self) -> MediaType<'_> {
+        MediaType::from_parts(self.ty, self.subty, self.suffix, &[])
+    }
 }
 
 impl<'a> ReadParams for MediaType<'a> {
