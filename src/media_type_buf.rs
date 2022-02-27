@@ -77,15 +77,18 @@ impl MediaTypeBuf {
             .map(|range| Name::new_unchecked(&self.data[range]))
     }
 
-    /// Returns the string representation without parameters.
+    /// Returns a [`MediaType`] without parameters.
+    ///
     /// ```
     /// # use mediatype::MediaTypeBuf;
     /// # use std::str::FromStr;
     /// let media_type: MediaTypeBuf = "image/svg+xml; charset=UTF-8".parse().unwrap();
-    /// assert_eq!(media_type.essence(), "image/svg+xml");
+    /// assert_eq!(media_type.essence().to_string(), "image/svg+xml");
     /// ```
-    pub fn essence(&self) -> &str {
-        self.data.split(';').next().unwrap().trim_end()
+    ///
+    /// [`MadiaType`]: ./struct.MediaType.html
+    pub fn essence(&self) -> MediaType<'_> {
+        MediaType::from_parts(self.ty(), self.subty(), self.suffix(), &[])
     }
 
     /// Returns the underlying string.
@@ -263,25 +266,31 @@ mod tests {
     #[test]
     fn essence() {
         assert_eq!(
-            MediaTypeBuf::from_str("image/svg+xml").unwrap().essence(),
+            MediaTypeBuf::from_str("image/svg+xml")
+                .unwrap()
+                .essence()
+                .to_string(),
             "image/svg+xml"
         );
         assert_eq!(
             MediaTypeBuf::from_str("image/svg+xml;  ")
                 .unwrap()
-                .essence(),
+                .essence()
+                .to_string(),
             "image/svg+xml"
         );
         assert_eq!(
             MediaTypeBuf::from_str("image/svg+xml; charset=UTF-8")
                 .unwrap()
-                .essence(),
+                .essence()
+                .to_string(),
             "image/svg+xml"
         );
         assert_eq!(
             MediaTypeBuf::from_str("image/svg+xml  ; charset=UTF-8")
                 .unwrap()
-                .essence(),
+                .essence()
+                .to_string(),
             "image/svg+xml"
         );
     }
