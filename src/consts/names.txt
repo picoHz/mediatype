@@ -662,6 +662,7 @@ vc2
 vcard
 VDVI
 vemmi
+video
 VMR-WB
 vnd.1000minds.decision-model
 vnd.3gpp-prose
