@@ -68,25 +68,31 @@ pub use value::*;
 /// ```
 /// # use mediatype::media_type;
 /// assert_eq!(media_type!(TEXT/PLAIN).to_string(), "text/plain");
+/// assert_eq!(media_type!(IMAGE/x_::ICON).to_string(), "image/x-icon");
+///
 /// assert_eq!(
 ///     media_type!(IMAGE/SVG+XML; CHARSET=UTF_8).to_string(),
 ///     "image/svg+xml; charset=UTF-8"
 /// );
+/// assert_eq!(
+///     media_type!(APPLICATION/vnd::OPENSTREETMAP_DATA+XML).to_string(),
+///     "application/vnd.openstreetmap.data+xml"
+/// );
 /// ```
 #[macro_export]
 macro_rules! media_type {
-    ($ty:ident / $subty:ident $(;$name:ident = $value:ident)*) => {
+    ($ty:ident / $prefix:ident $(:: $subty:ident)* $(;$name:ident = $value:ident)*) => {
         $crate::MediaType::from_parts(
             $crate::names::$ty,
-            $crate::names::$subty,
+            $crate::names::$prefix $(::$subty)*,
             None,
             &[$(($crate::names::$name, $crate::values::$value)),*],
         )
     };
-    ($ty:ident / $subty:ident + $suffix:ident $(;$name:ident = $value:ident)*) => {
+    ($ty:ident / $prefix:ident $(:: $subty:ident)* + $suffix:ident $(;$name:ident = $value:ident)*) => {
         $crate::MediaType::from_parts(
             $crate::names::$ty,
-            $crate::names::$subty,
+            $crate::names::$prefix $(::$subty)*,
             Some($crate::names::$suffix),
             &[$(($crate::names::$name, $crate::values::$value)),*],
         )
