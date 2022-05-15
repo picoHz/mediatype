@@ -5,6 +5,7 @@
 MIME Media-type parsing for Rust
 
 [![Crates.io](https://img.shields.io/crates/v/mediatype.svg)](https://crates.io/crates/mediatype)
+[![dependency status](https://deps.rs/crate/mediatype/0.19.3/status.svg)](https://deps.rs/crate/mediatype/0.19.3)
 [![GitHub license](https://img.shields.io/github/license/picoHz/mediatype.svg)](https://github.com/picoHz/mediatype/blob/main/LICENSE)
 [![Rustdoc](https://img.shields.io/badge/doc-rustdoc-green.svg)](https://docs.rs/mediatype)
 ![Rust](https://github.com/picoHz/mediatype/workflows/Rust/badge.svg)
