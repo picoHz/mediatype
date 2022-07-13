@@ -215,6 +215,12 @@ impl PartialEq<&MediaType<'_>> for MediaTypeBuf {
     }
 }
 
+impl PartialEq<MediaType<'_>> for &MediaTypeBuf {
+    fn eq(&self, other: &MediaType) -> bool {
+        *self == other
+    }
+}
+
 impl fmt::Display for MediaTypeBuf {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}/{}", self.ty(), self.subty())?;
@@ -231,7 +237,7 @@ impl fmt::Display for MediaTypeBuf {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{names::*, values::*};
+    use crate::{media_type, names::*, values::*};
 
     #[test]
     fn from_parts() {
@@ -328,6 +334,10 @@ mod tests {
                 Some(XML),
                 &[(CHARSET, US_ASCII), (CHARSET, UTF_8)]
             ),
+        );
+        assert_eq!(
+            &MediaTypeBuf::from_str("image/svg+xml").unwrap(),
+            media_type!(IMAGE / SVG + XML)
         );
     }
 }
