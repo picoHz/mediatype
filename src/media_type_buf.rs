@@ -1,7 +1,7 @@
 use super::{error::*, media_type::*, name::*, params::*, parse::*, value::*};
 use std::{borrow::Cow, collections::HashMap, fmt, str::FromStr};
 
-/// An owned and immutable [`MediaType`].
+/// An owned and immutable media type.
 ///
 /// ```
 /// use mediatype::{names::*, values::*, MediaType, MediaTypeBuf, ReadParams};
