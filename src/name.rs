@@ -20,6 +20,7 @@ impl<'a> Name<'a> {
     /// Constructs a `Name`.
     ///
     /// If the string is not valid as a name, returns `None`.
+    #[must_use]
     pub fn new(s: &'a str) -> Option<Self> {
         if is_restricted_name(s) {
             Some(Self(s))
@@ -29,7 +30,8 @@ impl<'a> Name<'a> {
     }
 
     /// Returns the underlying string.
-    pub fn as_str(&self) -> &str {
+    #[must_use]
+    pub const fn as_str(&self) -> &str {
         self.0
     }
 

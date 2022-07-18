@@ -1,7 +1,7 @@
 use super::{error::*, media_type_buf::*, name::*, params::*, parse::*, value::*};
 use std::{borrow::Cow, collections::HashMap, fmt};
 
-/// A borrowed MediaType.
+/// A borrowed media type.
 ///
 /// ```
 /// use mediatype::{names::*, MediaType, Value, WriteParams};
@@ -47,6 +47,7 @@ impl<'a> MediaType<'a> {
     /// const IMAGE_PNG: MediaType = MediaType::new(IMAGE, PNG);
     /// assert_eq!(IMAGE_PNG, MediaType::parse("image/png").unwrap());
     /// ```
+    #[must_use]
     pub const fn new(ty: Name<'a>, subty: Name<'a>) -> Self {
         Self {
             ty,
@@ -66,6 +67,7 @@ impl<'a> MediaType<'a> {
     ///     MediaType::parse("image/svg+xml; charset=UTF-8").unwrap()
     /// );
     /// ```
+    #[must_use]
     pub const fn from_parts(
         ty: Name<'a>,
         subty: Name<'a>,
@@ -95,6 +97,10 @@ impl<'a> MediaType<'a> {
     }
 
     /// Constructs a `MediaType` from `str` without copying the string.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the string fails to be parsed.
     pub fn parse<'s: 'a>(s: &'s str) -> Result<Self, MediaTypeError> {
         let (indices, _) = Indices::parse(s)?;
         let params = indices
@@ -127,7 +133,8 @@ impl<'a> MediaType<'a> {
     /// ```
     ///
     /// [`MadiaType`]: ./struct.MediaType.html
-    pub fn essence(&self) -> MediaType<'_> {
+    #[must_use]
+    pub const fn essence(&self) -> MediaType<'_> {
         MediaType::from_parts(self.ty, self.subty, self.suffix, &[])
     }
 }
