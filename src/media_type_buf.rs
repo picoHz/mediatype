@@ -1,7 +1,7 @@
 use super::{error::*, media_type::*, name::*, params::*, parse::*, value::*};
 use std::{borrow::Cow, collections::HashMap, fmt, str::FromStr};
 
-/// An owned and immutable MediaType.
+/// An owned and immutable media type.
 ///
 /// ```
 /// use mediatype::{names::*, values::*, MediaType, MediaTypeBuf, ReadParams};
@@ -21,11 +21,13 @@ pub struct MediaTypeBuf {
 
 impl MediaTypeBuf {
     /// Constructs a `MediaTypeBuf` from a top-level type and a subtype.
+    #[must_use]
     pub fn new(ty: Name, subty: Name) -> Self {
-        Self::from_string(format!("{}/{}", ty, subty)).unwrap()
+        Self::from_string(format!("{}/{}", ty, subty)).expect("`ty` and `subty` should be valid")
     }
 
     /// Constructs a `MediaTypeBuf` with an optional suffix and parameters.
+    #[must_use]
     pub fn from_parts(
         ty: Name,
         subty: Name,
@@ -34,20 +36,24 @@ impl MediaTypeBuf {
     ) -> Self {
         use std::fmt::Write;
         let mut s = String::new();
-        write!(s, "{}/{}", ty, subty).unwrap();
+        write!(s, "{}/{}", ty, subty).expect("`ty` and `subty` should be valid");
         if let Some(suffix) = suffix {
             write!(s, "+{}", suffix).unwrap();
         }
         for (name, value) in params {
             write!(s, "; {}={}", name, value).unwrap();
         }
-        Self::from_string(s).unwrap()
+        Self::from_string(s).expect("all values should be valid")
     }
 
     /// Constructs a `MediaTypeBuf` from [`String`].
     ///
     /// Unlike [`FromStr::from_str`], this function takes the ownership of [`String`]
     /// instead of making a new copy.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the string fails to be parsed.
     ///
     /// [`String`]: https://doc.rust-lang.org/std/string/struct.String.html
     /// [`FromStr::from_str`]: https://doc.rust-lang.org/std/str/trait.FromStr.html
@@ -61,16 +67,19 @@ impl MediaTypeBuf {
     }
 
     /// Returns the top-level type.
+    #[must_use]
     pub fn ty(&self) -> Name {
         Name::new_unchecked(&self.data[self.indices.ty()])
     }
 
     /// Returns the subtype.
+    #[must_use]
     pub fn subty(&self) -> Name {
         Name::new_unchecked(&self.data[self.indices.subty()])
     }
 
     /// Returns the suffix.
+    #[must_use]
     pub fn suffix(&self) -> Option<Name> {
         self.indices
             .suffix()
@@ -87,12 +96,14 @@ impl MediaTypeBuf {
     /// ```
     ///
     /// [`MadiaType`]: ./struct.MediaType.html
+    #[must_use]
     pub fn essence(&self) -> MediaType<'_> {
         MediaType::from_parts(self.ty(), self.subty(), self.suffix(), &[])
     }
 
     /// Returns the underlying string.
-    pub fn as_str(&self) -> &str {
+    #[must_use]
+    pub const fn as_str(&self) -> &str {
         &self.data
     }
 
@@ -108,6 +119,7 @@ impl MediaTypeBuf {
     ///     "image/svg+xml; charset=UTF-8"
     /// );
     /// ```
+    #[must_use]
     pub fn canonicalize(&self) -> Self {
         use std::fmt::Write;
         let mut s = String::with_capacity(self.data.len());
@@ -119,20 +131,23 @@ impl MediaTypeBuf {
         )
         .unwrap();
         if let Some(suffix) = self.suffix() {
-            write!(s, "+{}", suffix.as_str().to_ascii_lowercase()).unwrap();
+            write!(s, "+{}", suffix.as_str().to_ascii_lowercase())
+                .expect("`write` should not fail on a `String`");
         }
         for (name, value) in self.params() {
-            write!(s, "; {}={}", name.as_str().to_ascii_lowercase(), value).unwrap();
+            write!(s, "; {}={}", name.as_str().to_ascii_lowercase(), value)
+                .expect("`write` should not fail on a `String`");
         }
         s.shrink_to_fit();
-        Self::from_string(s).unwrap()
+        Self::from_string(s).expect("all values should be valid")
     }
 
     /// Constructs a `MediaType` from `self`.
+    #[must_use]
     pub fn to_ref(&self) -> MediaType {
         let params = self.params().collect::<Vec<_>>();
         let params = if params.is_empty() {
-            Cow::Borrowed(&[][..])
+            Cow::Borrowed([].as_slice())
         } else {
             Cow::Owned(params)
         };
@@ -173,13 +188,13 @@ impl FromStr for MediaTypeBuf {
 
 impl From<MediaType<'_>> for MediaTypeBuf {
     fn from(t: MediaType) -> Self {
-        Self::from_string(t.to_string()).unwrap()
+        Self::from_string(t.to_string()).expect("`t` should be valid")
     }
 }
 
 impl From<&MediaType<'_>> for MediaTypeBuf {
     fn from(t: &MediaType) -> Self {
-        Self::from_string(t.to_string()).unwrap()
+        Self::from_string(t.to_string()).expect("`t` should be valid")
     }
 }
 

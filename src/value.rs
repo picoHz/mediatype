@@ -32,6 +32,7 @@ impl<'a> Value<'a> {
     /// Constructs a `Value`.
     ///
     /// If the string is not valid as a value, returns `None`.
+    #[must_use]
     pub fn new(s: &'a str) -> Option<Self> {
         if let Some(quoted) = s.strip_prefix('\"') {
             if quoted.len() > 1 && parse_quoted_value(quoted) == Ok(quoted.len()) {
@@ -44,11 +45,13 @@ impl<'a> Value<'a> {
     }
 
     /// Returns the underlying string.
-    pub fn as_str(&self) -> &str {
+    #[must_use]
+    pub const fn as_str(&self) -> &str {
         self.0
     }
 
     /// Returns the unquoted string.
+    #[must_use]
     pub fn unquoted_str(&self) -> Cow<'_, str> {
         if self.0.starts_with('"') {
             let inner = &self.0[1..self.0.len() - 1];
@@ -89,6 +92,7 @@ impl<'a> Value<'a> {
     ///     "\" \\\"What's wrong\\?\\\" \""
     /// );
     /// ```
+    #[must_use]
     pub fn quote(s: &str) -> Cow<'_, str> {
         if is_restricted_str(s) {
             Cow::Borrowed(s)

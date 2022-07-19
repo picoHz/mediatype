@@ -1,4 +1,4 @@
-//! This crate provides two MediaType structs: [`MediaType`] and [`MediaTypeBuf`].
+//! This crate provides two media type structs: [`MediaType`] and [`MediaTypeBuf`].
 //!
 //! - [`MediaType`] does not copy data during parsing
 //!     and borrows the original string. It is also const-constructible.

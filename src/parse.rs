@@ -2,7 +2,7 @@ use super::{error::*, name::*};
 use std::{num::NonZeroU8, ops::Range};
 
 #[derive(Debug, Clone)]
-pub(crate) struct Indices {
+pub struct Indices {
     ty: NonZeroU8,
     subty: NonZeroU8,
     suffix: u8,
@@ -30,7 +30,7 @@ impl Indices {
         }
     }
 
-    pub fn params(&self) -> &[[usize; 4]] {
+    pub const fn params(&self) -> &[[usize; 4]] {
         &self.params
     }
 
@@ -52,11 +52,10 @@ impl Indices {
             .unwrap_or(right.len());
         let suffix_start = right[..suffix_end].rfind('+');
 
-        let (subty, suffix) = if let Some(suffix_start) = suffix_start {
-            (&right[..suffix_start], &right[suffix_start + 1..suffix_end])
-        } else {
-            (&right[..suffix_end], "")
-        };
+        let (subty, suffix) = suffix_start.map_or_else(
+            || (&right[..suffix_end], ""),
+            |suffix_start| (&right[..suffix_start], &right[suffix_start + 1..suffix_end]),
+        );
 
         if !is_restricted_name(subty) {
             return Err(MediaTypeError::InvalidSubtypeName);
@@ -75,7 +74,7 @@ impl Indices {
             };
 
         let (mut params, params_len) = parse_params(&s[params_start as usize..])?;
-        for elem in params.iter_mut() {
+        for elem in &mut params {
             for v in elem.iter_mut() {
                 *v += params_start;
             }
@@ -83,9 +82,9 @@ impl Indices {
 
         Ok((
             Self {
-                ty: NonZeroU8::new(ty.len() as _).unwrap(),
-                subty: NonZeroU8::new(subty.len() as _).unwrap(),
-                suffix: suffix.len() as _,
+                ty: NonZeroU8::new(ty.len().try_into().unwrap()).unwrap(),
+                subty: NonZeroU8::new(subty.len().try_into().unwrap()).unwrap(),
+                suffix: suffix.len().try_into().unwrap(),
                 params: params.into_boxed_slice(),
             },
             params_start + params_len,
@@ -133,7 +132,7 @@ pub fn is_restricted_char(c: char) -> bool {
         )
 }
 
-fn is_ows(c: char) -> bool {
+const fn is_ows(c: char) -> bool {
     c == ' ' || c == '\t'
 }
 

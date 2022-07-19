@@ -8,14 +8,14 @@ pub struct Params<'a> {
 }
 
 impl<'a> Params<'a> {
-    pub(crate) fn from_slice(s: &'a [(Name<'a>, Value<'a>)]) -> Self {
+    pub(crate) const fn from_slice(s: &'a [(Name<'a>, Value<'a>)]) -> Self {
         Self {
             source: ParamsSource::Slice(s),
             index: 0,
         }
     }
 
-    pub(crate) fn from_indices(s: &'a str, i: &'a Indices) -> Self {
+    pub(crate) const fn from_indices(s: &'a str, i: &'a Indices) -> Self {
         Self {
             source: ParamsSource::Indices(s, i),
             index: 0,
