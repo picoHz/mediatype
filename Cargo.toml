@@ -1,6 +1,6 @@
 [package]
 name = "mediatype"
-version = "0.19.4"
+version = "0.19.5"
 edition = "2021"
 authors = ["picoHz <picoHz@outlook.com>"]
 description = "MIME Media-type parsing"
