@@ -1,5 +1,11 @@
 use super::{error::*, media_type::*, name::*, params::*, parse::*, value::*};
-use std::{borrow::Cow, collections::HashMap, fmt, str::FromStr};
+use std::{
+    borrow::Cow,
+    collections::BTreeMap,
+    fmt,
+    hash::{Hash, Hasher},
+    str::FromStr,
+};
 
 /// An owned and immutable media type.
 ///
@@ -209,7 +215,8 @@ impl PartialEq for MediaTypeBuf {
         self.ty() == other.ty()
             && self.subty() == other.subty()
             && self.suffix() == other.suffix()
-            && self.params().collect::<HashMap<_, _>>() == other.params().collect::<HashMap<_, _>>()
+            && self.params().collect::<BTreeMap<_, _>>()
+                == other.params().collect::<BTreeMap<_, _>>()
     }
 }
 
@@ -220,7 +227,8 @@ impl PartialEq<MediaType<'_>> for MediaTypeBuf {
         self.ty() == other.ty
             && self.subty() == other.subty
             && self.suffix() == other.suffix
-            && self.params().collect::<HashMap<_, _>>() == other.params().collect::<HashMap<_, _>>()
+            && self.params().collect::<BTreeMap<_, _>>()
+                == other.params().collect::<BTreeMap<_, _>>()
     }
 }
 
@@ -249,10 +257,30 @@ impl fmt::Display for MediaTypeBuf {
     }
 }
 
+impl Hash for MediaTypeBuf {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.ty().hash(state);
+        self.subty().hash(state);
+        self.suffix().hash(state);
+        self.params()
+            .collect::<BTreeMap<_, _>>()
+            .into_iter()
+            .collect::<Vec<_>>()
+            .hash(state);
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::{media_type, names::*, values::*};
+    use std::collections::hash_map::DefaultHasher;
+
+    fn calculate_hash<T: Hash>(t: &T) -> u64 {
+        let mut s = DefaultHasher::new();
+        t.hash(&mut s);
+        s.finish()
+    }
 
     #[test]
     fn from_parts() {
@@ -353,6 +381,32 @@ mod tests {
         assert_eq!(
             &MediaTypeBuf::from_str("image/svg+xml").unwrap(),
             media_type!(IMAGE / SVG + XML)
+        );
+    }
+
+    #[test]
+    fn hash() {
+        assert_eq!(
+            calculate_hash(&MediaTypeBuf::from_str("text/plain").unwrap()),
+            calculate_hash(&MediaTypeBuf::from_str("TEXT/PLAIN").unwrap())
+        );
+        assert_eq!(
+            calculate_hash(&MediaTypeBuf::from_str("image/svg+xml; charset=UTF-8").unwrap()),
+            calculate_hash(&MediaTypeBuf::from_str("IMAGE/SVG+XML; CHARSET=UTF-8").unwrap())
+        );
+        assert_eq!(
+            calculate_hash(
+                &MediaTypeBuf::from_str("image/svg+xml; hello=WORLD; charset=UTF-8").unwrap()
+            ),
+            calculate_hash(
+                &MediaTypeBuf::from_str("IMAGE/SVG+XML; HELLO=WORLD; CHARSET=UTF-8").unwrap()
+            )
+        );
+        assert_eq!(
+            calculate_hash(&MediaTypeBuf::from_str("image/svg+xml; charset=UTF-8").unwrap()),
+            calculate_hash(
+                &MediaTypeBuf::from_str("image/svg+xml; charset=US-ASCII; charset=UTF-8").unwrap()
+            ),
         );
     }
 }
