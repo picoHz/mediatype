@@ -13,10 +13,10 @@ license = "MIT"
 readme = "README.md"
 
 [dependencies]
-serde = { version = "1.0.136", optional = true }
+serde = { version = "1.0.144", optional = true }
 
 [dev-dependencies]
-serde_json = "1.0.79"
+serde_json = "1.0.85"
 
 [package.metadata.docs.rs]
 all-features = true
