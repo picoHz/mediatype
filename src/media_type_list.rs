@@ -42,11 +42,17 @@ impl<'a> Iterator for MediaTypeList<'a> {
         }
         let mut end = 0;
         let mut quoted = false;
+        let mut escaped = false;
         while let Some(c) = self.0.as_bytes().get(end) {
-            match c {
-                b'"' => quoted = !quoted,
-                b',' if !quoted => break,
-                _ => (),
+            if escaped {
+                escaped = false;
+            } else {
+                match c {
+                    b'"' => quoted = !quoted,
+                    b'\\' if quoted => escaped = true,
+                    b',' if !quoted => break,
+                    _ => (),
+                }
             }
             end += 1;
         }
@@ -153,6 +159,16 @@ mod tests {
             "Hello, world?"
         );
 
+        assert_eq!(list.next(), None);
+    }
+
+    #[test]
+    fn escaped_params() {
+        let mut list = MediaTypeList::new("image/svg+xml; charset=\"UT\\\"F-8\"");
+        assert_eq!(
+            list.next(),
+            Some(MediaType::parse("image/svg+xml; charset=\"UT\\\"F-8\""))
+        );
         assert_eq!(list.next(), None);
     }
 }
