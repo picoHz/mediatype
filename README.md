@@ -18,6 +18,7 @@ MIME Media-type parsing for Rust
   - [Case Sensitivity](#case-sensitivity)
   - [Duplicate Parameter Names](#duplicate-parameter-names)
 - [Owned Type](#owned-type)
+- [MediaTypeList](#mediatypelist)
 - [Serialize and Deserialize](serialize-and-deserialize)
 
 ## Parsing
@@ -111,6 +112,23 @@ assert_eq!(text_plain.get_param(CHARSET).unwrap(), UTF_8);
 let mut text_markdown: MediaType = text_plain.to_ref();
 text_markdown.subty = MARKDOWN;
 assert_eq!(text_markdown.to_string(), "text/markdown; charset=UTF-8");
+```
+
+## MediaTypeList
+
+[`MediaTypeList`](https://docs.rs/mediatype/latest/mediatype/struct.MediaTypeList.html) parses a comma-separated list of `MediaType`s used in HTTP `Accept` header. ([RFC 7231](https://www.rfc-editor.org/rfc/rfc7231#section-5.3.2))
+
+```rust
+use mediatype::{MediaType, MediaTypeList};
+
+let mut list = MediaTypeList::new(
+    "text/html, application/xhtml+xml, application/xml;q=0.9, */*;q=0.8",
+);
+assert_eq!(list.next(), Some(MediaType::parse("text/html")));
+assert_eq!(list.next(), Some(MediaType::parse("application/xhtml+xml")));
+assert_eq!(list.next(), Some(MediaType::parse("application/xml;q=0.9")));
+assert_eq!(list.next(), Some(MediaType::parse("*/*;q=0.8")));
+assert_eq!(list.next(), None);
 ```
 
 ## Serialize and Deserialize

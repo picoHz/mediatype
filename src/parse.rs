@@ -132,7 +132,7 @@ pub fn is_restricted_char(c: char) -> bool {
         )
 }
 
-const fn is_ows(c: char) -> bool {
+pub const fn is_ows(c: char) -> bool {
     c == ' ' || c == '\t'
 }
 
