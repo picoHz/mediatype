@@ -116,7 +116,7 @@ assert_eq!(text_markdown.to_string(), "text/markdown; charset=UTF-8");
 
 ## MediaTypeList
 
-[`MediaTypeList`](https://docs.rs/mediatype/latest/mediatype/struct.MediaTypeList.html) parses a comma-separated list of `MediaType`s used in HTTP `Accept` header. ([RFC 7231](https://www.rfc-editor.org/rfc/rfc7231#section-5.3.2))
+[`MediaTypeList`](https://docs.rs/mediatype/latest/mediatype/struct.MediaTypeList.html) parses a comma-separated list of `MediaType`s used in the HTTP `Accept` header. ([RFC 7231](https://www.rfc-editor.org/rfc/rfc7231#section-5.3.2))
 
 ```rust
 use mediatype::{MediaType, MediaTypeList};

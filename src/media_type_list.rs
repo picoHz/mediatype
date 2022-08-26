@@ -1,6 +1,6 @@
 use super::{error::*, media_type::*, parse::*};
 
-/// A comma-separated list of `MediaType`s used in HTTP `Accept` header. ([RFC 7231](https://www.rfc-editor.org/rfc/rfc7231#section-5.3.2))
+/// A comma-separated list of `MediaType`s used in the HTTP `Accept` header. ([RFC 7231](https://www.rfc-editor.org/rfc/rfc7231#section-5.3.2))
 ///
 /// ```
 /// use mediatype::{MediaType, MediaTypeList};
@@ -14,7 +14,7 @@ use super::{error::*, media_type::*, parse::*};
 /// assert_eq!(list.next(), Some(MediaType::parse("*/*;q=0.8")));
 /// assert_eq!(list.next(), None);
 ///
-/// // A comma can be used in a quoted string.
+/// // Commas can be used in a quoted string.
 /// let mut list = MediaTypeList::new("text/html; message=\"Hello, world!\"");
 /// assert_eq!(list.next(), Some(MediaType::parse("text/html; message=\"Hello, world!\"")));
 /// assert_eq!(list.next(), None);
