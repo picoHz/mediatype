@@ -61,6 +61,10 @@ impl<'a> Iterator for MediaTypeList<'a> {
         self.0 = &self.0[end..];
         Some(madia_type)
     }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        (0, Some(self.0.matches(',').count() + 1))
+    }
 }
 
 #[cfg(test)]
@@ -170,5 +174,19 @@ mod tests {
             Some(MediaType::parse("image/svg+xml; charset=\"UT\\\"F-8\""))
         );
         assert_eq!(list.next(), None);
+    }
+
+    #[test]
+    fn size_hint() {
+        let list = MediaTypeList::new("");
+        assert_eq!(list.size_hint(), (0, Some(1)));
+
+        let list = MediaTypeList::new(
+            "text/html, application/xhtml+xml, application/xml;q=0.9, */*;q=0.8",
+        );
+        assert_eq!(list.size_hint(), (0, Some(4)));
+
+        let list = MediaTypeList::new("text/html; message=\"Hello, world!\"");
+        assert_eq!(list.size_hint(), (0, Some(2)));
     }
 }
