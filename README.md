@@ -41,7 +41,7 @@ assert_eq!(svg.get_param(CHARSET), Some(UTF_8));
 
 ## Construction
 
-`MediaType` is const-construtible. It can be defained as a constant. 
+`MediaType` is const-constructible. It can be defined as a constant. 
 
 Predefind names and values are defined in [`names`](https://docs.rs/mediatype/latest/mediatype/names/index.html) and [`values`](https://docs.rs/mediatype/latest/mediatype/values/index.html) modules.
 
