@@ -117,7 +117,9 @@ fn parse_to_string(s: &str) -> Result<String, MediaTypeError> {
 }
 
 pub fn is_restricted_name(s: &str) -> bool {
-    s.len() <= Name::MAX_LENGTH && s.starts_with(char::is_alphanumeric) && is_restricted_str(s)
+    s.len() <= Name::MAX_LENGTH
+        && s.starts_with(|c: char| c.is_alphanumeric() || c == '*')
+        && is_restricted_str(s)
 }
 
 pub fn is_restricted_str(s: &str) -> bool {
@@ -222,6 +224,7 @@ mod tests {
 
     #[test]
     fn parse() {
+        assert_eq!(parse_to_string("*/*"), Ok("*/*".into()));
         assert_eq!(parse_to_string("text/plain"), Ok("text/plain".into()));
         assert_eq!(parse_to_string("text/plain;"), Ok("text/plain".into()));
         assert_eq!(parse_to_string("image/svg+xml"), Ok("image/svg+xml".into()));

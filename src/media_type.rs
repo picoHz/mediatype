@@ -254,6 +254,7 @@ mod tests {
 
     #[test]
     fn to_string() {
+        assert_eq!(MediaType::new(_STAR, _STAR).to_string(), "*/*");
         assert_eq!(MediaType::new(TEXT, PLAIN).to_string(), "text/plain");
         assert_eq!(
             MediaType::from_parts(IMAGE, SVG, Some(XML), &[]).to_string(),
