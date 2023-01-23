@@ -38,6 +38,7 @@ impl<'a> Name<'a> {
     /// The maximum byte length of a name.
     pub const MAX_LENGTH: usize = 127;
 
+    /// Constructs a `Name` without validation.
     pub const fn new_unchecked(s: &'a str) -> Self {
         Self(s)
     }
