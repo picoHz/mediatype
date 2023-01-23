@@ -198,8 +198,8 @@ impl<'a> From<&'a MediaTypeBuf> for MediaType<'a> {
     }
 }
 
-impl<'a> PartialEq for MediaType<'a> {
-    fn eq(&self, other: &MediaType) -> bool {
+impl<'a, 'b> PartialEq<MediaType<'b>> for MediaType<'a> {
+    fn eq(&self, other: &MediaType<'b>) -> bool {
         self.ty == other.ty
             && self.subty == other.subty
             && self.suffix == other.suffix
@@ -345,6 +345,10 @@ mod tests {
             ),
             MediaTypeBuf::from_str("image/svg+xml; charset=UTF-8").unwrap(),
         );
+
+        const TEXT_PLAIN: MediaType = MediaType::from_parts(TEXT, PLAIN, None, &[]);
+        let text_plain = MediaType::parse("text/plain").unwrap();
+        assert_eq!(text_plain.essence(), TEXT_PLAIN);
     }
 
     #[test]
