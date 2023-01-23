@@ -113,8 +113,8 @@ impl<'a> MediaType<'a> {
             .iter()
             .map(|param| {
                 (
-                    Name::new_unchecked(&s[param[0] as usize..param[1] as usize]),
-                    Value::new_unchecked(&s[param[2] as usize..param[3] as usize]),
+                    Name::new_unchecked(&s[param[0]..param[1]]),
+                    Value::new_unchecked(&s[param[2]..param[3]]),
                 )
             })
             .collect();

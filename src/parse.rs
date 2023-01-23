@@ -73,7 +73,7 @@ impl Indices {
                 suffix.len() + 1
             };
 
-        let (mut params, params_len) = parse_params(&s[params_start as usize..])?;
+        let (mut params, params_len) = parse_params(&s[params_start..])?;
         for elem in &mut params {
             for v in elem.iter_mut() {
                 *v += params_start;
@@ -107,8 +107,8 @@ fn parse_to_string(s: &str) -> Result<String, MediaTypeError> {
         write!(
             out,
             "; {}={}",
-            &s[param[0] as usize..param[1] as usize],
-            &s[param[2] as usize..param[3] as usize]
+            &s[param[0]..param[1]],
+            &s[param[2]..param[3]]
         )
         .unwrap();
     }

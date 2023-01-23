@@ -172,10 +172,10 @@ impl ReadParams for MediaTypeBuf {
             .iter()
             .rev()
             .find(|&&[start, end, _, _]| {
-                name == Name::new_unchecked(&self.data[start as usize..end as usize])
+                name == Name::new_unchecked(&self.data[start..end])
             })
             .map(|&[_, _, start, end]| {
-                Value::new_unchecked(&self.data[start as usize..end as usize])
+                Value::new_unchecked(&self.data[start..end])
             })
     }
 }
