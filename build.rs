@@ -74,7 +74,7 @@ fn upper_snake_case(s: &str) -> String {
         })
         .collect::<String>()
         .replace('+', "_plus")
-        .replace(|c| !char::is_alphanumeric(c), "_")
+        .replace(|c| !char::is_ascii_alphanumeric(&c), "_")
         .to_ascii_uppercase();
 
     if s.starts_with(char::is_numeric) {

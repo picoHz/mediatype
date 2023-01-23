@@ -118,7 +118,7 @@ fn parse_to_string(s: &str) -> Result<String, MediaTypeError> {
 
 pub fn is_restricted_name(s: &str) -> bool {
     s.len() <= Name::MAX_LENGTH
-        && s.starts_with(|c: char| c.is_alphanumeric() || c == '*')
+        && s.starts_with(|c: char| c.is_ascii_alphanumeric() || c == '*')
         && is_restricted_str(s)
 }
 
@@ -127,7 +127,7 @@ pub fn is_restricted_str(s: &str) -> bool {
 }
 
 pub fn is_restricted_char(c: char) -> bool {
-    c.is_alphanumeric()
+    c.is_ascii_alphanumeric()
         || matches!(
             c,
             '!' | '#' | '$' | '&' | '-' | '^' | '_' | '.' | '+' | '%' | '*' | '\''
@@ -318,6 +318,15 @@ mod tests {
         assert_eq!(
             parse_to_string(&long_str),
             Err(MediaTypeError::InvalidTypeName)
+        );
+
+        assert_eq!(
+            parse_to_string("текст/plain"),
+            Err(MediaTypeError::InvalidTypeName)
+        );
+        assert_eq!(
+            parse_to_string("text/plain; кодування=UTF-8"),
+            Err(MediaTypeError::InvalidParamName)
         );
     }
 }
