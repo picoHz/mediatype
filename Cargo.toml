@@ -1,11 +1,16 @@
 [package]
 name = "mediatype"
-version = "0.19.15"
+version = "0.19.16"
 edition = "2021"
 authors = ["picoHz <picoHz@outlook.com>"]
 description = "MIME Media-type parsing"
 keywords = ["media-type", "media-types", "mime", "media-extensions"]
-categories = ["parser-implementations", "network-programming", "web-programming", "email"]
+categories = [
+    "parser-implementations",
+    "network-programming",
+    "web-programming",
+    "email",
+]
 repository = "https://github.com/picoHz/mediatype"
 homepage = "https://github.com/picoHz/mediatype"
 documentation = "https://docs.rs/mediatype"
