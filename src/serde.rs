@@ -13,7 +13,7 @@ impl<'a> Serialize for MediaType<'a> {
     }
 }
 
-impl<'de> Deserialize<'de> for MediaType<'de> {
+impl<'de: 'a, 'a> Deserialize<'de> for MediaType<'a> {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: Deserializer<'de>,
