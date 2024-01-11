@@ -35,12 +35,11 @@ impl Indices {
     }
 
     pub fn parse(s: &str) -> Result<(Self, usize), MediaTypeError> {
-        // ty.len() + '/' + subty.len() + '+' + suffix.len()
-        const MAX_ESSENCE_LENGTH: usize = Name::MAX_LENGTH * 3 + 2;
-
-        let (ty, right) = match s[..MAX_ESSENCE_LENGTH.min(s.len())].split_once('/') {
-            Some(pair) => pair,
-            _ => return Err(MediaTypeError::InvalidTypeName),
+        let (ty, right) = match s.bytes().take(Name::MAX_LENGTH + 1).position(|b| b == b'/') {
+            Some(slash) => (&s[..slash], &s[slash + 1..]),
+            None => {
+                return Err(MediaTypeError::InvalidTypeName);
+            }
         };
 
         if !is_restricted_name(ty) {
@@ -317,6 +316,11 @@ mod tests {
         let long_str = format!("{}/plain", "t".repeat(std::u16::MAX as usize));
         assert_eq!(
             parse_to_string(&long_str),
+            Err(MediaTypeError::InvalidTypeName)
+        );
+        let multibyte_str = "a\u{FFFF}".repeat(Name::MAX_LENGTH);
+        assert_eq!(
+            parse_to_string(&multibyte_str),
             Err(MediaTypeError::InvalidTypeName)
         );
 
