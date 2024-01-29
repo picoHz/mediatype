@@ -3514,6 +3514,8 @@ pub const SOFA: crate::Name = crate::Name::new_unchecked("sofa");
 pub const SP_MIDI: crate::Name = crate::Name::new_unchecked("sp-midi");
 /// `sparql-query`
 pub const SPARQL_QUERY: crate::Name = crate::Name::new_unchecked("sparql-query");
+/// `sparql-update`
+pub const SPARQL_UPDATE: crate::Name = crate::Name::new_unchecked("sparql-update");
 /// `sparql-results`
 pub const SPARQL_RESULTS: crate::Name = crate::Name::new_unchecked("sparql-results");
 /// `spdx`
