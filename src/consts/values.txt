@@ -26,4 +26,5 @@ no
 Shift_JIS
 US-ASCII
 UTF-8
+UTF-16
 yes
