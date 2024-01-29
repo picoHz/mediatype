@@ -60,5 +60,7 @@ pub const SHIFT_JIS: crate::Value = crate::Value::new_unchecked("Shift_JIS");
 pub const US_ASCII: crate::Value = crate::Value::new_unchecked("US-ASCII");
 /// `UTF-8`
 pub const UTF_8: crate::Value = crate::Value::new_unchecked("UTF-8");
+/// `UTF-16`
+pub const UTF_16: crate::Value = crate::Value::new_unchecked("UTF-16");
 /// `yes`
 pub const YES: crate::Value = crate::Value::new_unchecked("yes");
