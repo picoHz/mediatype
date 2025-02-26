@@ -114,105 +114,105 @@ impl<'a> Value<'a> {
     }
 }
 
-impl<'a> fmt::Display for Value<'a> {
+impl fmt::Display for Value<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str(self.0)
     }
 }
 
-impl<'a> PartialEq for Value<'a> {
+impl PartialEq for Value<'_> {
     fn eq(&self, other: &Self) -> bool {
         self.unquoted_str() == other.unquoted_str()
     }
 }
 
-impl<'a> Eq for Value<'a> {}
+impl Eq for Value<'_> {}
 
-impl<'a> PartialOrd for Value<'a> {
+impl PartialOrd for Value<'_> {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
     }
 }
 
-impl<'a> Ord for Value<'a> {
+impl Ord for Value<'_> {
     fn cmp(&self, other: &Self) -> Ordering {
         self.unquoted_str().cmp(&other.unquoted_str())
     }
 }
 
-impl<'a> Hash for Value<'a> {
+impl Hash for Value<'_> {
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.unquoted_str().hash(state);
     }
 }
 
-impl<'a> PartialEq<String> for Value<'a> {
+impl PartialEq<String> for Value<'_> {
     fn eq(&self, other: &String) -> bool {
         self.eq(other.as_str())
     }
 }
 
-impl<'a> PartialOrd<String> for Value<'a> {
+impl PartialOrd<String> for Value<'_> {
     fn partial_cmp(&self, other: &String) -> Option<Ordering> {
         self.partial_cmp(other.as_str())
     }
 }
 
-impl<'a> PartialEq<&String> for Value<'a> {
+impl PartialEq<&String> for Value<'_> {
     fn eq(&self, other: &&String) -> bool {
         self.eq(other.as_str())
     }
 }
 
-impl<'a> PartialOrd<&String> for Value<'a> {
+impl PartialOrd<&String> for Value<'_> {
     fn partial_cmp(&self, other: &&String) -> Option<Ordering> {
         self.partial_cmp(other.as_str())
     }
 }
 
-impl<'a> PartialEq<str> for Value<'a> {
+impl PartialEq<str> for Value<'_> {
     fn eq(&self, other: &str) -> bool {
         self.unquoted_str() == other
     }
 }
 
-impl<'a> PartialOrd<str> for Value<'a> {
+impl PartialOrd<str> for Value<'_> {
     fn partial_cmp(&self, other: &str) -> Option<Ordering> {
         Some(self.unquoted_str().as_ref().cmp(other))
     }
 }
 
-impl<'a> PartialEq<&str> for Value<'a> {
+impl PartialEq<&str> for Value<'_> {
     fn eq(&self, other: &&str) -> bool {
         self.eq(*other)
     }
 }
 
-impl<'a> PartialOrd<&str> for Value<'a> {
+impl PartialOrd<&str> for Value<'_> {
     fn partial_cmp(&self, other: &&str) -> Option<Ordering> {
         self.partial_cmp(*other)
     }
 }
 
-impl<'a> PartialEq<Cow<'_, str>> for Value<'a> {
+impl PartialEq<Cow<'_, str>> for Value<'_> {
     fn eq(&self, other: &Cow<'_, str>) -> bool {
         self.eq(other.as_ref())
     }
 }
 
-impl<'a> PartialOrd<Cow<'_, str>> for Value<'a> {
+impl PartialOrd<Cow<'_, str>> for Value<'_> {
     fn partial_cmp(&self, other: &Cow<'_, str>) -> Option<Ordering> {
         self.partial_cmp(other.as_ref())
     }
 }
 
-impl<'a> PartialEq<&Cow<'_, str>> for Value<'a> {
+impl PartialEq<&Cow<'_, str>> for Value<'_> {
     fn eq(&self, other: &&Cow<'_, str>) -> bool {
         self.eq(other.as_ref())
     }
 }
 
-impl<'a> PartialOrd<&Cow<'_, str>> for Value<'a> {
+impl PartialOrd<&Cow<'_, str>> for Value<'_> {
     fn partial_cmp(&self, other: &&Cow<'_, str>) -> Option<Ordering> {
         self.partial_cmp(other.as_ref())
     }

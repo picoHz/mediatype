@@ -144,7 +144,7 @@ impl<'a> MediaType<'a> {
     }
 }
 
-impl<'a> ReadParams for MediaType<'a> {
+impl ReadParams for MediaType<'_> {
     fn params(&self) -> Params {
         Params::from_slice(&self.params)
     }
@@ -179,7 +179,7 @@ impl<'a> WriteParams<'a> for MediaType<'a> {
     }
 }
 
-impl<'a> fmt::Display for MediaType<'a> {
+impl fmt::Display for MediaType<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}/{}", self.ty, self.subty)?;
         if let Some(suffix) = self.suffix {
@@ -198,7 +198,7 @@ impl<'a> From<&'a MediaTypeBuf> for MediaType<'a> {
     }
 }
 
-impl<'a, 'b> PartialEq<MediaType<'b>> for MediaType<'a> {
+impl<'b> PartialEq<MediaType<'b>> for MediaType<'_> {
     fn eq(&self, other: &MediaType<'b>) -> bool {
         self.ty == other.ty
             && self.subty == other.subty
@@ -208,9 +208,9 @@ impl<'a, 'b> PartialEq<MediaType<'b>> for MediaType<'a> {
     }
 }
 
-impl<'a> Eq for MediaType<'a> {}
+impl Eq for MediaType<'_> {}
 
-impl<'a> PartialEq<MediaTypeBuf> for MediaType<'a> {
+impl PartialEq<MediaTypeBuf> for MediaType<'_> {
     fn eq(&self, other: &MediaTypeBuf) -> bool {
         self.ty == other.ty()
             && self.subty == other.subty()
@@ -220,13 +220,13 @@ impl<'a> PartialEq<MediaTypeBuf> for MediaType<'a> {
     }
 }
 
-impl<'a> PartialEq<&MediaTypeBuf> for MediaType<'a> {
+impl PartialEq<&MediaTypeBuf> for MediaType<'_> {
     fn eq(&self, other: &&MediaTypeBuf) -> bool {
         self == *other
     }
 }
 
-impl<'a> Hash for MediaType<'a> {
+impl Hash for MediaType<'_> {
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.ty.hash(state);
         self.subty.hash(state);

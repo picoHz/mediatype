@@ -40,7 +40,7 @@ fn generate_consts(
         .map(|&(pf, name, comment)| (pf, name, comment, String::with_capacity(1024)))
         .collect::<Vec<_>>();
 
-    let input = fs::read_to_string(&input).expect("failed to read input file");
+    let input = fs::read_to_string(input).expect("failed to read input file");
     for line in input.lines() {
         let (ident, name) = if let Some(pair) = line.split_once('=') {
             pair

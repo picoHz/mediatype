@@ -265,7 +265,7 @@ mod tests {
         );
 
         let s = "text/plain";
-        let long_str = format!("{};{}", s, " ".repeat(std::u16::MAX as usize - 2 - s.len()));
+        let long_str = format!("{};{}", s, " ".repeat(u16::MAX as usize - 2 - s.len()));
         assert_eq!(parse_to_string(&long_str), Ok("text/plain".into()));
 
         let long_name = "a".repeat(Name::MAX_LENGTH);
@@ -313,7 +313,7 @@ mod tests {
             Err(MediaTypeError::InvalidParamName)
         );
 
-        let long_str = format!("{}/plain", "t".repeat(std::u16::MAX as usize));
+        let long_str = format!("{}/plain", "t".repeat(u16::MAX as usize));
         assert_eq!(
             parse_to_string(&long_str),
             Err(MediaTypeError::InvalidTypeName)

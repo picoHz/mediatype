@@ -44,33 +44,33 @@ impl<'a> Name<'a> {
     }
 }
 
-impl<'a> fmt::Display for Name<'a> {
+impl fmt::Display for Name<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str(self.0)
     }
 }
 
-impl<'a> AsRef<str> for Name<'a> {
+impl AsRef<str> for Name<'_> {
     fn as_ref(&self) -> &str {
         self.0
     }
 }
 
-impl<'a> PartialEq for Name<'a> {
+impl PartialEq for Name<'_> {
     fn eq(&self, other: &Self) -> bool {
         self.0.eq_ignore_ascii_case(other.as_ref())
     }
 }
 
-impl<'a> Eq for Name<'a> {}
+impl Eq for Name<'_> {}
 
-impl<'a> PartialOrd for Name<'a> {
+impl PartialOrd for Name<'_> {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
     }
 }
 
-impl<'a> Ord for Name<'a> {
+impl Ord for Name<'_> {
     fn cmp(&self, other: &Self) -> Ordering {
         self.0
             .chars()
@@ -79,43 +79,43 @@ impl<'a> Ord for Name<'a> {
     }
 }
 
-impl<'a> Hash for Name<'a> {
+impl Hash for Name<'_> {
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.0.to_ascii_lowercase().hash(state);
     }
 }
 
-impl<'a> PartialEq<String> for Name<'a> {
+impl PartialEq<String> for Name<'_> {
     fn eq(&self, other: &String) -> bool {
         self.eq(other.as_str())
     }
 }
 
-impl<'a> PartialOrd<String> for Name<'a> {
+impl PartialOrd<String> for Name<'_> {
     fn partial_cmp(&self, other: &String) -> Option<Ordering> {
         self.partial_cmp(other.as_str())
     }
 }
 
-impl<'a> PartialEq<&String> for Name<'a> {
+impl PartialEq<&String> for Name<'_> {
     fn eq(&self, other: &&String) -> bool {
         self.eq(other.as_str())
     }
 }
 
-impl<'a> PartialOrd<&String> for Name<'a> {
+impl PartialOrd<&String> for Name<'_> {
     fn partial_cmp(&self, other: &&String) -> Option<Ordering> {
         self.partial_cmp(other.as_str())
     }
 }
 
-impl<'a> PartialEq<str> for Name<'a> {
+impl PartialEq<str> for Name<'_> {
     fn eq(&self, other: &str) -> bool {
         self.0.eq_ignore_ascii_case(other)
     }
 }
 
-impl<'a> PartialOrd<str> for Name<'a> {
+impl PartialOrd<str> for Name<'_> {
     fn partial_cmp(&self, other: &str) -> Option<Ordering> {
         Some(
             self.0
@@ -126,37 +126,37 @@ impl<'a> PartialOrd<str> for Name<'a> {
     }
 }
 
-impl<'a> PartialEq<&str> for Name<'a> {
+impl PartialEq<&str> for Name<'_> {
     fn eq(&self, other: &&str) -> bool {
         self.eq(*other)
     }
 }
 
-impl<'a> PartialOrd<&str> for Name<'a> {
+impl PartialOrd<&str> for Name<'_> {
     fn partial_cmp(&self, other: &&str) -> Option<Ordering> {
         self.partial_cmp(*other)
     }
 }
 
-impl<'a> PartialEq<Cow<'_, str>> for Name<'a> {
+impl PartialEq<Cow<'_, str>> for Name<'_> {
     fn eq(&self, other: &Cow<'_, str>) -> bool {
         self.eq(other.as_ref())
     }
 }
 
-impl<'a> PartialOrd<Cow<'_, str>> for Name<'a> {
+impl PartialOrd<Cow<'_, str>> for Name<'_> {
     fn partial_cmp(&self, other: &Cow<'_, str>) -> Option<Ordering> {
         self.partial_cmp(other.as_ref())
     }
 }
 
-impl<'a> PartialEq<&Cow<'_, str>> for Name<'a> {
+impl PartialEq<&Cow<'_, str>> for Name<'_> {
     fn eq(&self, other: &&Cow<'_, str>) -> bool {
         self.eq(other.as_ref())
     }
 }
 
-impl<'a> PartialOrd<&Cow<'_, str>> for Name<'a> {
+impl PartialOrd<&Cow<'_, str>> for Name<'_> {
     fn partial_cmp(&self, other: &&Cow<'_, str>) -> Option<Ordering> {
         self.partial_cmp(other.as_ref())
     }
