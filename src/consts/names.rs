@@ -1310,6 +1310,8 @@ pub mod vnd {
     pub const MSEQ: crate::Name = crate::Name::new_unchecked("vnd.mseq");
     /// `vnd.msign`
     pub const MSIGN: crate::Name = crate::Name::new_unchecked("vnd.msign");
+    /// `vnd.msgpack`
+    pub const MSGPACK: crate::Name = crate::Name::new_unchecked("vnd.msgpack");
     /// `vnd.mts`
     pub const MTS: crate::Name = crate::Name::new_unchecked("vnd.mts");
     /// `vnd.multiad.creator`

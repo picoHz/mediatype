@@ -1316,6 +1316,7 @@ vnd.ms-xpsdocument
 vnd.msa-disk-image
 vnd.mseq
 vnd.msign
+vnd.msgpack
 vnd.mts
 vnd.multiad.creator
 vnd.multiad.creator.cif
