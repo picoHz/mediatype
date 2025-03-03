@@ -4,7 +4,7 @@ use super::{media_type::*, media_type_buf::*};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::borrow::Cow;
 
-impl<'a> Serialize for MediaType<'a> {
+impl Serialize for MediaType<'_> {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
