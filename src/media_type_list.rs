@@ -57,7 +57,7 @@ impl<'a> Iterator for MediaTypeList<'a> {
             end += 1;
         }
         let madia_type = MediaType::parse(&self.0[..end]);
-        let end = self.0.as_bytes().len().min(end + 1);
+        let end = self.0.len().min(end + 1);
         self.0 = &self.0[end..];
         Some(madia_type)
     }
