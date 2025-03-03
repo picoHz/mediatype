@@ -2744,6 +2744,8 @@ pub const FASTINFOSET: crate::Name = crate::Name::new_unchecked("fastinfoset");
 pub const FASTSOAP: crate::Name = crate::Name::new_unchecked("fastsoap");
 /// `fdt`
 pub const FDT: crate::Name = crate::Name::new_unchecked("fdt");
+/// `feed`
+pub const FEED: crate::Name = crate::Name::new_unchecked("feed");
 /// `FFV1`
 pub const FFV1: crate::Name = crate::Name::new_unchecked("FFV1");
 /// `fhir`
@@ -3404,6 +3406,8 @@ pub const RPKI_PUBLICATION: crate::Name = crate::Name::new_unchecked("rpki-publi
 pub const RPKI_ROA: crate::Name = crate::Name::new_unchecked("rpki-roa");
 /// `rpki-updown`
 pub const RPKI_UPDOWN: crate::Name = crate::Name::new_unchecked("rpki-updown");
+/// `rss`
+pub const RSS: crate::Name = crate::Name::new_unchecked("rss");
 /// `rtf`
 pub const RTF: crate::Name = crate::Name::new_unchecked("rtf");
 /// `rtp-enc-aescm128`
