@@ -1,7 +1,6 @@
 use super::{error::*, media_type_buf::*, name::*, params::*, parse::*, value::*};
-use std::{
-    borrow::Cow,
-    collections::BTreeMap,
+use alloc::{borrow::Cow, collections::BTreeMap, vec::Vec};
+use core::{
     fmt,
     hash::{Hash, Hasher},
 };
@@ -243,8 +242,9 @@ impl Hash for MediaType<'_> {
 mod tests {
     use super::*;
     use crate::{names::*, values::*};
+    use alloc::string::ToString;
+    use core::str::FromStr;
     use std::collections::hash_map::DefaultHasher;
-    use std::str::FromStr;
 
     fn calculate_hash<T: Hash>(t: &T) -> u64 {
         let mut s = DefaultHasher::new();

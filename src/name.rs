@@ -1,8 +1,7 @@
 use super::parse::*;
-use std::{
-    borrow::Cow,
+use alloc::{borrow::Cow, fmt, string::String};
+use core::{
     cmp::Ordering,
-    fmt,
     hash::{Hash, Hasher},
 };
 
