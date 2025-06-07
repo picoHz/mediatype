@@ -1,8 +1,8 @@
 #![cfg(feature = "serde")]
 
 use super::{media_type::*, media_type_buf::*};
+use alloc::{borrow::Cow, string::ToString};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
-use std::borrow::Cow;
 
 impl Serialize for MediaType<'_> {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
@@ -47,8 +47,8 @@ impl<'de> Deserialize<'de> for MediaTypeBuf {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use alloc::str::FromStr;
     use serde_json::Value;
-    use std::str::FromStr;
 
     #[test]
     fn serde() {

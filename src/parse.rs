@@ -1,5 +1,6 @@
 use super::{error::*, name::*};
-use std::{num::NonZeroU8, ops::Range};
+use alloc::{boxed::Box, vec::Vec};
+use core::{num::NonZeroU8, ops::Range};
 
 #[derive(Debug, Clone)]
 pub struct Indices {
@@ -92,10 +93,10 @@ impl Indices {
 }
 
 #[cfg(test)]
-fn parse_to_string(s: &str) -> Result<String, MediaTypeError> {
-    use std::fmt::Write;
+fn parse_to_string(s: &str) -> Result<alloc::string::String, MediaTypeError> {
+    use core::fmt::Write;
 
-    let mut out = String::new();
+    let mut out = alloc::string::String::new();
     let (indices, _) = Indices::parse(s)?;
 
     write!(out, "{}/{}", &s[indices.ty()], &s[indices.subty()]).unwrap();
@@ -265,11 +266,11 @@ mod tests {
         );
 
         let s = "text/plain";
-        let long_str = format!("{};{}", s, " ".repeat(u16::MAX as usize - 2 - s.len()));
+        let long_str = [s, ";", &" ".repeat(u16::MAX as usize - 2 - s.len())].concat();
         assert_eq!(parse_to_string(&long_str), Ok("text/plain".into()));
 
         let long_name = "a".repeat(Name::MAX_LENGTH);
-        let long_str = format!("{}/{}+{}", long_name, long_name, long_name);
+        let long_str = [&long_name, "/", &long_name, "+", &long_name].concat();
         assert_eq!(parse_to_string(&long_str), Ok(long_str));
     }
 
@@ -313,7 +314,7 @@ mod tests {
             Err(MediaTypeError::InvalidParamName)
         );
 
-        let long_str = format!("{}/plain", "t".repeat(u16::MAX as usize));
+        let long_str = [&"t".repeat(u16::MAX as usize), "/plain"].concat();
         assert_eq!(
             parse_to_string(&long_str),
             Err(MediaTypeError::InvalidTypeName)

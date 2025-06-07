@@ -1,7 +1,12 @@
 use super::{error::*, media_type::*, name::*, params::*, parse::*, value::*};
-use std::{
+use alloc::{
     borrow::Cow,
+    boxed::Box,
     collections::BTreeMap,
+    string::{String, ToString},
+    vec::Vec,
+};
+use core::{
     fmt,
     hash::{Hash, Hasher},
     str::FromStr,
@@ -29,7 +34,8 @@ impl MediaTypeBuf {
     /// Constructs a `MediaTypeBuf` from a top-level type and a subtype.
     #[must_use]
     pub fn new(ty: Name, subty: Name) -> Self {
-        Self::from_string(format!("{}/{}", ty, subty)).expect("`ty` and `subty` should be valid")
+        Self::from_string([ty.as_str(), "/", subty.as_str()].concat())
+            .expect("`ty` and `subty` should be valid")
     }
 
     /// Constructs a `MediaTypeBuf` with an optional suffix and parameters.
@@ -40,7 +46,7 @@ impl MediaTypeBuf {
         suffix: Option<Name>,
         params: &[(Name, Value)],
     ) -> Self {
-        use std::fmt::Write;
+        use core::fmt::Write;
         let mut s = String::new();
         write!(s, "{}/{}", ty, subty).expect("`ty` and `subty` should be valid");
         if let Some(suffix) = suffix {
@@ -127,7 +133,7 @@ impl MediaTypeBuf {
     /// ```
     #[must_use]
     pub fn canonicalize(&self) -> Self {
-        use std::fmt::Write;
+        use core::fmt::Write;
         let mut s = String::with_capacity(self.data.len());
         write!(
             s,
@@ -274,6 +280,7 @@ impl Hash for MediaTypeBuf {
 mod tests {
     use super::*;
     use crate::{media_type, names::*, values::*};
+    use alloc::string::ToString;
     use std::collections::hash_map::DefaultHasher;
 
     fn calculate_hash<T: Hash>(t: &T) -> u64 {

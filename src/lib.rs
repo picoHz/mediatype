@@ -1,7 +1,7 @@
 //! This crate provides two media type structs: [`MediaType`] and [`MediaTypeBuf`].
 //!
 //! - [`MediaType`] does not copy data during parsing
-//!     and borrows the original string. It is also const-constructible.
+//!   and borrows the original string. It is also const-constructible.
 //! - [`MediaTypeBuf`] is an owned  and immutable version of [`MediaType`].
 //!
 //! [`MadiaType`]: ./struct.MediaType.html
@@ -38,9 +38,15 @@
 //! assert_eq!(upper.subty(), "Plain");
 //! ```
 
+#![no_std]
 #![forbid(unsafe_code)]
 #![forbid(clippy::all)]
 #![cfg_attr(docsrs, feature(doc_cfg))]
+
+extern crate alloc;
+
+#[cfg(test)]
+extern crate std;
 
 mod consts;
 mod error;
