@@ -90,19 +90,23 @@ pub use value::*;
 #[macro_export]
 macro_rules! media_type {
     ($ty:ident / $prefix:ident $(:: $subty:ident)* $(;$name:ident = $value:ident)*) => {
-        $crate::MediaType::from_parts(
-            $crate::names::$ty,
-            $crate::names::$prefix $(::$subty)*,
-            None,
-            &[$(($crate::names::$name, $crate::values::$value)),*],
-        )
+        const {
+            $crate::MediaType::from_parts(
+                $crate::names::$ty,
+                $crate::names::$prefix $(::$subty)*,
+                None,
+                &[$(($crate::names::$name, $crate::values::$value)),*],
+            )
+        }
     };
     ($ty:ident / $prefix:ident $(:: $subty:ident)* + $suffix:ident $(;$name:ident = $value:ident)*) => {
-        $crate::MediaType::from_parts(
-            $crate::names::$ty,
-            $crate::names::$prefix $(::$subty)*,
-            Some($crate::names::$suffix),
-            &[$(($crate::names::$name, $crate::values::$value)),*],
-        )
+        const {
+            $crate::MediaType::from_parts(
+                $crate::names::$ty,
+                $crate::names::$prefix $(::$subty)*,
+                Some($crate::names::$suffix),
+                &[$(($crate::names::$name, $crate::values::$value)),*],
+            )
+        }
     };
 }
