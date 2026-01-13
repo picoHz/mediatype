@@ -108,7 +108,7 @@ impl<'a> Value<'a> {
         }
     }
 
-    pub(crate) const fn new_unchecked(s: &'a str) -> Self {
+    pub const fn new_unchecked(s: &'a str) -> Self {
         Self(s)
     }
 }
