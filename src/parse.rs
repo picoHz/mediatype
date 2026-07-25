@@ -211,7 +211,11 @@ pub fn parse_quoted_value(s: &str) -> Result<usize, MediaTypeError> {
                 escaped = true;
             }
             '"' => return Ok(len),
-            '\n' => return Err(MediaTypeError::InvalidParamValue),
+            // RFC 7230 §3.2.6: qdtext excludes all CTLs except HTAB; CR and LF are
+            // both forbidden. Rejecting '\r' alongside '\n' closes a CRLF-injection
+            // vector (raw CR was accepted by the catch-all below and round-tripped
+            // verbatim through Display on re-serialization).
+            '\n' | '\r' => return Err(MediaTypeError::InvalidParamValue),
             _ => (),
         }
     }
@@ -332,6 +336,47 @@ mod tests {
         assert_eq!(
             parse_to_string("text/plain; кодування=UTF-8"),
             Err(MediaTypeError::InvalidParamName)
+        );
+    }
+
+    // RFC 7230 §3.2.6: qdtext = HTAB / SP / %x21 / %x23-5B / %x5D-7E / obs-text;
+    // all CTLs except HTAB are excluded from a quoted-string value. CR and LF are
+    // both forbidden — the parser must reject them symmetrically (an incomplete
+    // CTL filter that rejects only LF and admits CR is a CRLF-injection vector:
+    // the parsed MediaType borrows the input, so a raw CR is round-tripped
+    // verbatim through Display on re-serialization into an HTTP header).
+    #[test]
+    fn parse_quoted_value_ctl_filter() {
+        // HTAB is the only CTL allowed in qdtext (RFC 7230 §3.2.6) — must parse.
+        assert_eq!(
+            parse_to_string("text/plain; x=\"foo\tbar\""),
+            Ok("text/plain; x=\"foo\tbar\"".into())
+        );
+        // SP is valid qdtext — must parse.
+        assert_eq!(
+            parse_to_string("text/plain; x=\"foo bar\""),
+            Ok("text/plain; x=\"foo bar\"".into())
+        );
+        // A regular VCHAR quoted value — must parse (control).
+        assert_eq!(
+            parse_to_string("text/plain; charset=\"UTF-8\""),
+            Ok("text/plain; charset=\"UTF-8\"".into())
+        );
+        // Raw CR inside a quoted value is invalid qdtext — must be rejected.
+        assert_eq!(
+            parse_to_string("text/plain; x=\"foo\rbar\""),
+            Err(MediaTypeError::InvalidParamValue)
+        );
+        // Raw LF inside a quoted value is invalid qdtext — must be rejected
+        // (symmetry with the CR case: RFC 7230 treats CR and LF identically).
+        assert_eq!(
+            parse_to_string("text/plain; x=\"foo\nbar\""),
+            Err(MediaTypeError::InvalidParamValue)
+        );
+        // CRLF inside a quoted value — must be rejected (CR is hit first).
+        assert_eq!(
+            parse_to_string("text/plain; x=\"foo\r\nbar\""),
+            Err(MediaTypeError::InvalidParamValue)
         );
     }
 }
