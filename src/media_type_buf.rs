@@ -80,19 +80,19 @@ impl MediaTypeBuf {
 
     /// Returns the top-level type.
     #[must_use]
-    pub fn ty(&self) -> Name {
+    pub fn ty(&self) -> Name<'_> {
         Name::new_unchecked(&self.data[self.indices.ty()])
     }
 
     /// Returns the subtype.
     #[must_use]
-    pub fn subty(&self) -> Name {
+    pub fn subty(&self) -> Name<'_> {
         Name::new_unchecked(&self.data[self.indices.subty()])
     }
 
     /// Returns the suffix.
     #[must_use]
-    pub fn suffix(&self) -> Option<Name> {
+    pub fn suffix(&self) -> Option<Name<'_>> {
         self.indices
             .suffix()
             .map(|range| Name::new_unchecked(&self.data[range]))
@@ -156,7 +156,7 @@ impl MediaTypeBuf {
 
     /// Constructs a `MediaType` from `self`.
     #[must_use]
-    pub fn to_ref(&self) -> MediaType {
+    pub fn to_ref(&self) -> MediaType<'_> {
         let params = self.params().collect::<Vec<_>>();
         let params = if params.is_empty() {
             Cow::Borrowed([].as_slice())
@@ -168,11 +168,11 @@ impl MediaTypeBuf {
 }
 
 impl ReadParams for MediaTypeBuf {
-    fn params(&self) -> Params {
+    fn params(&self) -> Params<'_> {
         Params::from_indices(&self.data, &self.indices)
     }
 
-    fn get_param(&self, name: Name) -> Option<Value> {
+    fn get_param(&self, name: Name) -> Option<Value<'_>> {
         self.indices
             .params()
             .iter()

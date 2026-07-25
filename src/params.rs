@@ -70,12 +70,12 @@ impl<'a> Iterator for Params<'a> {
 /// A trait for getting parameter values.
 pub trait ReadParams {
     /// Returns the parameters.
-    fn params(&self) -> Params;
+    fn params(&self) -> Params<'_>;
 
     /// Gets the parameter value by its name.
     ///
     /// If the same name appears more than once, returns the last value.
-    fn get_param(&self, name: Name) -> Option<Value>;
+    fn get_param(&self, name: Name) -> Option<Value<'_>>;
 }
 
 /// A trait for mutating parameter values.

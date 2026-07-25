@@ -144,11 +144,11 @@ impl<'a> MediaType<'a> {
 }
 
 impl ReadParams for MediaType<'_> {
-    fn params(&self) -> Params {
+    fn params(&self) -> Params<'_> {
         Params::from_slice(&self.params)
     }
 
-    fn get_param(&self, name: Name) -> Option<Value> {
+    fn get_param(&self, name: Name) -> Option<Value<'_>> {
         self.params
             .iter()
             .rev()
