@@ -61,7 +61,7 @@ impl Indices {
             return Err(MediaTypeError::InvalidSubtypeName);
         }
 
-        if !suffix.is_empty() && !is_restricted_name(&suffix[1..]) {
+        if !suffix.is_empty() && !is_restricted_name(suffix) {
             return Err(MediaTypeError::InvalidSuffix);
         }
 
@@ -232,6 +232,8 @@ mod tests {
         assert_eq!(parse_to_string("text/plain"), Ok("text/plain".into()));
         assert_eq!(parse_to_string("text/plain;"), Ok("text/plain".into()));
         assert_eq!(parse_to_string("image/svg+xml"), Ok("image/svg+xml".into()));
+        assert_eq!(parse_to_string("image/svg+x"), Ok("image/svg+x".into()));
+        assert_eq!(parse_to_string("a/b+c+d"), Ok("a/b+c+d".into()));
         assert_eq!(
             parse_to_string("image/svg+xml;"),
             Ok("image/svg+xml".into())
