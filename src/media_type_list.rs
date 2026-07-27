@@ -32,10 +32,9 @@ impl<'a> Iterator for MediaTypeList<'a> {
     type Item = Result<MediaType<'a>, MediaTypeError>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        if let Some(index) = self.0.find(|c| !is_ows(c)) {
+        {
+            let index = self.0.find(|c| !is_ows(c))?;
             self.0 = &self.0[index..];
-        } else {
-            return None;
         }
         if self.0.is_empty() {
             return None;
