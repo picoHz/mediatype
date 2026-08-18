@@ -204,6 +204,12 @@ pub fn parse_quoted_value(s: &str) -> Result<usize, MediaTypeError> {
     for c in s.chars() {
         len += c.len_utf8();
         match c {
+            // RFC 7230 §3.2.6: CR and LF are neither qdtext nor a valid quoted-pair,
+            // so they are forbidden regardless of a preceding backslash. This arm must
+            // precede the `escaped` catch-all below; otherwise an escaped CR/LF is
+            // consumed as a quoted-pair and round-trips verbatim through Display,
+            // opening a CRLF-injection vector on re-serialization.
+            '\n' | '\r' => return Err(MediaTypeError::InvalidParamValue),
             _ if escaped => {
                 escaped = false;
             }
@@ -211,11 +217,6 @@ pub fn parse_quoted_value(s: &str) -> Result<usize, MediaTypeError> {
                 escaped = true;
             }
             '"' => return Ok(len),
-            // RFC 7230 §3.2.6: qdtext excludes all CTLs except HTAB; CR and LF are
-            // both forbidden. Rejecting '\r' alongside '\n' closes a CRLF-injection
-            // vector (raw CR was accepted by the catch-all below and round-tripped
-            // verbatim through Display on re-serialization).
-            '\n' | '\r' => return Err(MediaTypeError::InvalidParamValue),
             _ => (),
         }
     }
